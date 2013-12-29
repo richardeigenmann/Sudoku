@@ -31,9 +31,9 @@ function doRedraw() {
 }
 
 function pickNumber(row, col, number) {
-      setNumber( row, col, number);
-      findCollisions( row, col, number);
-      removeOptions( row,col,number );
+  setNumber( row, col, number);
+  findCollisions( row, col, number);
+  removeOptions( row,col,number );
 }
 
 function doClear() {
@@ -174,8 +174,8 @@ function findCollisions(row, col, number) {
 }
 
 /**
- * Highlights the collisions visually
- */
+* Highlights the collisions visually
+*/
 function flagCollisions(row1, col1, row2, col2){
   var firstNumber = document.getElementById("span"+row1+col1);
   var secondNumber = document.getElementById("span"+row2+col2);
@@ -233,6 +233,4 @@ function getNumber(row,col){
     node = span.firstChild;
     return node.textContent ? node.textContent : node.innerText;
   }
-}
-
 }
