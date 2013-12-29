@@ -234,5 +234,3 @@ function getNumber(row,col){
     return node.textContent ? node.textContent : node.innerText;
   }
 }
-
-}
