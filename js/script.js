@@ -173,7 +173,9 @@ function findCollisions(row, col, number) {
   }
 }
 
-
+/**
+ * Highlights the collisions visually
+ */
 function flagCollisions(row1, col1, row2, col2){
   var firstNumber = document.getElementById("span"+row1+col1);
   var secondNumber = document.getElementById("span"+row2+col2);
