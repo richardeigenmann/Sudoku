@@ -1,4 +1,6 @@
 Sudoku
 ======
 
-HTML5 Sudoku App
+An in-browser app to simplify solving Sudoku puzzles
+
+
