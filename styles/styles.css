@@ -11,13 +11,21 @@
 .sudokuDiv {
     width: 600px; 
     display: table-cell;
+    vertical-align: top;
 }
 
 .stepsList {
     display: table-cell;    
     border:1px solid #ccc;
-    overflow:auto;
+    vertical-align: top;
+
 }
+
+.innerStepsList {
+        height: 500px;
+        overflow: scroll;
+}
+
 
 TABLE.outer {
     border-spacing: 0;
@@ -89,6 +97,10 @@ TD {
 
 .displayNone {
     display: none;
+}
+
+OL {
+    overflow:auto;
 }
 
 .stuff{

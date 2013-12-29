@@ -140,12 +140,18 @@ function recordStep(row, col, number) {
     var li = document.createElement("li");
     li.appendChild(checkbox);
     li.appendChild(document.createTextNode("Row: " + row + " Col: " + col + ": " + number));
+    
+    li.appendChild( document.createTextNode(" "));
 
     var deleteButton = document.createElement("button");
     deleteButton.innerHTML = "delete";
     deleteButton.onclick = doDeleteButtonClick;
     li.appendChild(deleteButton);
     steps.appendChild(li);
+    
+    var innerStepsList = document.getElementById("innerStepsList");
+    innerStepsList.scrollTop = innerStepsList.scrollHeight;
+    
 }
 
 function doDeleteButtonClick(e) {
