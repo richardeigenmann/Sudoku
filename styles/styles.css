@@ -1,82 +1,113 @@
 
+.mainDiv {
+    width: 100%; 
+    display: table;
+}
+
+.mainRow {
+    display: table-row;
+}
+
+.sudokuDiv {
+    width: 600px; 
+    display: table-cell;
+    vertical-align: top;
+}
+
+.stepsList {
+    display: table-cell;    
+    border:1px solid #ccc;
+    vertical-align: top;
+
+}
+
+.innerStepsList {
+    height: 500px;
+    overflow: scroll;
+}
+
+
 TABLE.outer {
- 	border-spacing: 0;
- 	border-style: solid;
- 	border-color: black;
- 	border-width: medium;
-  
+    border-spacing: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: medium;
+
 }
 
 TABLE.mainblock {
- 	border-spacing: 0;
- 	border-style: solid;
- 	border-color: black;
- 	border-width: thin;
+    border-spacing: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: thin;
 }
 
 TD.mainBlock {
- 	border-spacing: 0;
- 	border-style: solid;
- 	border-color: black;
- 	border-width: thin;
+    border-spacing: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: thin;
 }
 
 TABLE.numberBlock {
- 	border-spacing: 0;
- 	border-style: solid;
- 	border-color: black;
- 	border-width: thin;
+    border-spacing: 0;
+    border-style: solid;
+    border-color: black;
+    border-width: thin;
 }
 
 .numberCell {
-  width: 50px;
-  height: 50px;
-  vertical-align: middle;
-  text-align: center;
+    width: 50px;
+    height: 50px;
+    vertical-align: middle;
+    text-align: center;
 }
 
 TABLE.subNumberTable {
-  margin-left:auto;
-  margin-right:auto;
+    margin-left:auto;
+    margin-right:auto;
 }
 
 TABLE.subNumberTable TD {
- 	border-style: solid;
- 	border-color: black;
- 	border-width: thin;
-  font-family: sans-serif;
-  font-size:7pt;
+    border-style: solid;
+    border-color: black;
+    border-width: thin;
+    font-family: sans-serif;
+    font-size:7pt;
 }
 
 TABLE.subNumberTable TD:hover {
- 	background-color: yellow;
+    background-color: yellow;
 }
 
 TD {
- 	vertical-align: top;
+    vertical-align: top;
 }
 
 .visibleNumberSpan {
-  font-family: sans-serif;
-  font-size:20pt;
+    font-family: sans-serif;
+    font-size:20pt;
 }
 
 .collisionNumberSpan {
-  font-family: sans-serif;
-  font-size:20pt;
-  background-color: red;
+    font-family: sans-serif;
+    font-size:20pt;
+    background-color: red;
 }
 
 .displayNone {
-  display: none;
+    display: none;
 }
 
+OL {
+    overflow:auto;
+}
 .stuff{
-  
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

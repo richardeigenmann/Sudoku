@@ -1,188 +1,196 @@
 function load() {
-  var outerDiv = document.getElementById("Sudoku");
-  drawGrid(outerDiv);
-  console.log("hello Kaspar!");
+    var outerDiv = document.getElementById("Sudoku");
+    drawGrid(outerDiv);
 }
 
 function doSubNumberClick() {
-  var source = this.id;
-  var row = source.substring(9,10);
-  var col = source.substring(10,11);
-  var number = source.substring(12,13);
-  pickNumber(row,col,number);
-  recordStep(row,col,number);
+    var source = this.id;
+    var row = source.substring(9, 10);
+    var col = source.substring(10, 11);
+    var number = source.substring(12, 13);
+    pickNumber(row, col, number);
+    recordStep(row, col, number);
 }
 
 function doRedraw() {
-  var outerDiv = document.getElementById("Sudoku");
-  drawGrid(outerDiv);
-  
-  var steps = document.getElementById("steps");
-  for (var i=0, item; item = steps.childNodes[i]; i++) {
-    console.log("step: "+i);
-    var checkbox = item.firstChild;
-    if (checkbox.checked) {
-      var textNode = checkbox.nextSibling;
-      var row = textNode.substringData(5,1);
-      var col = textNode.substringData(12,1);
-      var number = textNode.substringData(15,1);
-      pickNumber(row, col, number);
+    var outerDiv = document.getElementById("Sudoku");
+    drawGrid(outerDiv);
+
+    var liElements = document.getElementsByTagName('li');
+    var li = null;
+    for (var i = 0; i < liElements.length; ++i) {
+        var li = liElements[i];
+        console.log(li);
+        var checkbox = li.firstChild;
+        if (checkbox.checked) {
+            var textNode = checkbox.nextSibling;
+            var row = textNode.substringData(5, 1);
+            var col = textNode.substringData(12, 1);
+            var number = textNode.substringData(15, 1);
+            pickNumber(row, col, number);
+        }
     }
-  }
 }
 
 function pickNumber(row, col, number) {
-  setNumber( row, col, number);
-  findCollisions( row, col, number);
-  //removeOptions( row,col,number );
+    setNumber(row, col, number);
+    findCollisions(row, col, number);
+    removeOptions(row, col, number);
 }
 
 function doClear() {
-  var steps = document.getElementById("steps");
-  steps.innerHTML="";
-  
-  var outerDiv = document.getElementById("Sudoku");
-  drawGrid(outerDiv);
+    var steps = document.getElementById("steps");
+    steps.innerHTML = "";
+
+    var outerDiv = document.getElementById("Sudoku");
+    drawGrid(outerDiv);
 }
 
 
 
 function drawGrid(baseElement) {
-  var outerTable = document.createElement("Table");
-  outerTable.className="outer";
-  
-  for ( var i=0; i<3; i++) {
-    outerTable.appendChild(getMainRow(i));
-  }
-  
-  while (baseElement.hasChildNodes()) {
-    baseElement.removeChild(baseElement.lastChild);
-  }
-  baseElement.appendChild(outerTable);
+    var outerTable = document.createElement("Table");
+    outerTable.className = "outer";
+
+    for (var i = 0; i < 3; i++) {
+        outerTable.appendChild(getMainRow(i));
+    }
+
+    while (baseElement.hasChildNodes()) {
+        baseElement.removeChild(baseElement.lastChild);
+    }
+    baseElement.appendChild(outerTable);
 }
 
 function getMainRow(rowNumber) {
-  var mainRow = document.createElement("TR");
-  for ( var i=0; i<3; i++) {
-    var mainBlock = getMainBlock( rowNumber*3, i*3);
-    mainRow.appendChild(mainBlock);
-  }
-  return mainRow;
+    var mainRow = document.createElement("TR");
+    for (var i = 0; i < 3; i++) {
+        var mainBlock = getMainBlock(rowNumber * 3, i * 3);
+        mainRow.appendChild(mainBlock);
+    }
+    return mainRow;
 }
 
 function getMainBlock(rowNumber, colNumber) {
-  var mainBlock = document.createElement("TD");
-  mainBlock.className="mainBlock";
-  var numberBlock = document.createElement("Table");
-  numberBlock.className="numberBlock";
-  for ( var i=1; i<4; i++) {
-    var numberRow = document.createElement("TR");
-    for ( var j=1; j<4; j++) {
-      var numberCell = document.createElement("TD");
-      numberCell.id="cell"+ (rowNumber + i) + "" + (colNumber + j);
-      numberCell.className="numberCell";
-      
-      var numberSpan = document.createElement("span");
-      //numberSpan.className="visibleNumberSpan";
-      numberSpan.className="displayNone";
-      numberSpan.id="span"+ (rowNumber + i) + "" + (colNumber + j);
-      numberSpan.appendChild(document.createTextNode("row: " + (rowNumber + i) + " col: " + (colNumber + j)));
-      
-      numberCell.appendChild(numberSpan);
-      numberCell.appendChild(getSubNumberTable( rowNumber + i, colNumber + j ));
-      
-      numberRow.appendChild(numberCell);
+    var mainBlock = document.createElement("TD");
+    mainBlock.className = "mainBlock";
+    var numberBlock = document.createElement("Table");
+    numberBlock.className = "numberBlock";
+    for (var i = 1; i < 4; i++) {
+        var numberRow = document.createElement("TR");
+        for (var j = 1; j < 4; j++) {
+            var numberCell = document.createElement("TD");
+            numberCell.id = "cell" + (rowNumber + i) + "" + (colNumber + j);
+            numberCell.className = "numberCell";
+
+            var numberSpan = document.createElement("span");
+            //numberSpan.className="visibleNumberSpan";
+            numberSpan.className = "displayNone";
+            numberSpan.id = "span" + (rowNumber + i) + "" + (colNumber + j);
+            numberSpan.appendChild(document.createTextNode("row: " + (rowNumber + i) + " col: " + (colNumber + j)));
+
+            numberCell.appendChild(numberSpan);
+            numberCell.appendChild(getSubNumberTable(rowNumber + i, colNumber + j));
+
+            numberRow.appendChild(numberCell);
+        }
+        numberBlock.appendChild(numberRow);
+
     }
-    numberBlock.appendChild(numberRow);
-    
-  }
-  mainBlock.appendChild(numberBlock);
-  return mainBlock;
+    mainBlock.appendChild(numberBlock);
+    return mainBlock;
 }
 
-function getSubNumberTable( row, col ) {
-  var subNumberTable = document.createElement("Table");
-  subNumberTable.className="subNumberTable";
-  subNumberTable.id="subTable"+row+""+col;
-  number = 1;
-  for (var i=0; i<3; i++) {
-    var tr = document.createElement("TR");
-    subNumberTable.appendChild(tr);
-    for (var j=0; j<3; j++){
-      var td = document.createElement("TD");
-      tr.appendChild(td);
-      td.id="subNumber"+row+""+col+"."+number;
-      td.appendChild(document.createTextNode(number));
-      td.onclick=doSubNumberClick;
-      number++;
+function getSubNumberTable(row, col) {
+    var subNumberTable = document.createElement("Table");
+    subNumberTable.className = "subNumberTable";
+    subNumberTable.id = "subTable" + row + "" + col;
+    number = 1;
+    for (var i = 0; i < 3; i++) {
+        var tr = document.createElement("TR");
+        subNumberTable.appendChild(tr);
+        for (var j = 0; j < 3; j++) {
+            var td = document.createElement("TD");
+            tr.appendChild(td);
+            td.id = "subNumber" + row + "" + col + "." + number;
+            td.appendChild(document.createTextNode(number));
+            td.onclick = doSubNumberClick;
+            number++;
+        }
     }
-  }
-  return subNumberTable;
+    return subNumberTable;
 }
 
 
-function setNumber( row, col, number) {
-  var span = document.getElementById("span"+row+col);
-  var subNumberTable = document.getElementById("subTable"+row+col);
-  span.innerHTML=number;
-  span.className="visibleNumberSpan";
-  subNumberTable.className= "displayNone";
+function setNumber(row, col, number) {
+    var span = document.getElementById("span" + row + col);
+    var subNumberTable = document.getElementById("subTable" + row + col);
+    span.innerHTML = number;
+    span.className = "visibleNumberSpan";
+    subNumberTable.className = "displayNone";
 }
 
-function recordStep( row, col, number ) {
-  var steps = document.getElementById("steps");
-  var checkbox = document.createElement("input");
-  checkbox.type="checkbox";
-  checkbox.checked = true;
-  checkbox.onchange=doRedraw;
-  
-  var li = document.createElement("li");
-  li.appendChild(checkbox);
-  li.appendChild(document.createTextNode("Row: "+row+" Col: "+col+": "+number));
+function recordStep(row, col, number) {
+    var steps = document.getElementById("steps");
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = true;
+    checkbox.onchange = doRedraw;
 
-  var deleteButton = document.createElement("button");
-  deleteButton.innerHTML = 'deleteButton';
-  deleteButton.onclick = doDeleteButtonClick;
-  li.appendChild( deleteButton );
-  
-  steps.appendChild(li);
+    var li = document.createElement("li");
+    li.appendChild(checkbox);
+    li.appendChild(document.createTextNode("Row: " + row + " Col: " + col + ": " + number));
+
+    li.appendChild(document.createTextNode(" "));
+
+    var deleteButton = document.createElement("button");
+    deleteButton.innerHTML = "delete";
+    deleteButton.onclick = doDeleteButtonClick;
+    li.appendChild(deleteButton);
+    steps.appendChild(li);
+
+    var innerStepsList = document.getElementById("innerStepsList");
+    innerStepsList.scrollTop = innerStepsList.scrollHeight;
 }
 
 function doDeleteButtonClick(e) {
-  console.log(e.srcElement.parentNode);
-  e.srcElement.parentNode.parentNode.remove(e.srcElement.parentNode);
-  doRedraw();
+    e.srcElement.parentNode.parentNode.removeChild(e.srcElement.parentNode);
+    doRedraw();
 }
 
+
 function findCollisions(row, col, number) {
-  // check row
-  for (var i=1; i<10; i++ ) {
-    if ( i==col ) continue;
-    var test = getNumber(row,i);
-    if (test == number) {
-      flagCollisions(row,col, row,i);
+    // check row
+    for (var i = 1; i < 10; i++) {
+        if (i == col)
+            continue;
+        var test = getNumber(row, i);
+        if (test == number) {
+            flagCollisions(row, col, row, i);
+        }
     }
-  }
-  // check column
-  for (var i=1; i<10; i++ ) {
-    if ( i==row ) continue;
-    var test = getNumber(i, col);
-    if (test == number) {
-      flagCollisions(row,col, i, col);
+    // check column
+    for (var i = 1; i < 10; i++) {
+        if (i == row)
+            continue;
+        var test = getNumber(i, col);
+        if (test == number) {
+            flagCollisions(row, col, i, col);
+        }
     }
-  }
-  // check grid
-  var x = Math.floor((row-1) / 3) * 3 + 1;
-  var y = Math.floor((col-1) / 3) * 3 + 1;
-  for ( var i = x; i < x+3; i++) {
-    for ( var j = y; j < y+3; j++) {
-      if ( (i==row) && (j==col) ) continue;
-      var test = getNumber(i, j);
-      if (test == number) {
-        flagCollisions(row,col, i, j);
-      }
+    // check grid
+    var x = Math.floor((row - 1) / 3) * 3 + 1;
+    var y = Math.floor((col - 1) / 3) * 3 + 1;
+    for (var i = x; i < x + 3; i++) {
+        for (var j = y; j < y + 3; j++) {
+            if ((i == row) && (j == col))
+                continue;
+            var test = getNumber(i, j);
+            if (test == number) {
+                flagCollisions(row, col, i, j);
+            }
+        }
     }
-  }
 }
 
 /**
@@ -197,39 +205,42 @@ function flagCollisions(row1, col1, row2, col2){
 
 
 function removeOptions(row, col, number) {
-  // check row
-  for (var i=1; i<10; i++ ) {
-    if ( i==col ) continue;
-    var test = getNumber(row,i);
-    if (test == 0) {
-      removeOption(row,i,number);
+    // check row
+    for (var i = 1; i < 10; i++) {
+        if (i == col)
+            continue;
+        var test = getNumber(row, i);
+        if (test == 0) {
+            removeOption(row, i, number);
+        }
     }
-  }
-  // check column
-  for (var i=1; i<10; i++ ) {
-    if ( i==row ) continue;
-    var test = getNumber(i, col);
-    if (test == 0) {
-      removeOption(i, col,number);
+    // check column
+    for (var i = 1; i < 10; i++) {
+        if (i == row)
+            continue;
+        var test = getNumber(i, col);
+        if (test == 0) {
+            removeOption(i, col, number);
+        }
     }
-  }
-  // check grid
-  var x = Math.floor((row-1) / 3) * 3 + 1;
-  var y = Math.floor((col-1) / 3) * 3 + 1;
-  for ( var i = x; i < x+3; i++) {
-    for ( var j = y; j < y+3; j++) {
-      if ( (i==row) && (j==col) ) continue;
-      var test = getNumber(i, j);
-      if (test == 0) {
-        removeOption(i, j,number);
-      }
+    // check grid
+    var x = Math.floor((row - 1) / 3) * 3 + 1;
+    var y = Math.floor((col - 1) / 3) * 3 + 1;
+    for (var i = x; i < x + 3; i++) {
+        for (var j = y; j < y + 3; j++) {
+            if ((i == row) && (j == col))
+                continue;
+            var test = getNumber(i, j);
+            if (test == 0) {
+                removeOption(i, j, number);
+            }
+        }
     }
-  }
 }
 
 function removeOption(row, col, number) {
-  var subNumber = document.getElementById("subNumber"+row+col+"."+number);
-  subNumber.className="displayNone";
+    var subNumber = document.getElementById("subNumber" + row + col + "." + number);
+    subNumber.className = "displayNone";
 }
 
 
@@ -239,24 +250,14 @@ function removeOption(row, col, number) {
 function getNumber(row,col){
   var span=document.getElementById("span"+row+col);
   var name=span.className;
-  if ( name ===  "displayNone") {
-    return 0;
-  } else {
-    node = span.firstChild;
-    return node.textContent ? node.textContent : node.innerText;
-  }
+    if (name === "displayNone") {
+        return 0;
+    } else {
+        node = span.firstChild;
+        return node.textContent ? node.textContent : node.innerText;
+    }
 }
 
-
-function writeFile() {
-  window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-  navigator.webkitPersistentStorage.requestQuota( 5*1024, granted, errorHandler);
-}                        
-
-function granted(grantedBytes) {
-  console.log("Granted: " + grantedBytes);
-  window.requestFileSystem(PERSISTENT, grantedBytes, successCallback, errorHandler);
-}
 
 
 function successCallback(fs ) {
@@ -265,6 +266,33 @@ function successCallback(fs ) {
   console.log("Want to get file");
   fs.root.getFile('log.txt', {create: true}, gotFile , errorHandler);
   console.log("next step");
+    if (name === "displayNone") {
+        return 0;
+    } else {
+        node = span.firstChild;
+        return node.textContent ? node.textContent : node.innerText;
+    }
+}
+
+
+
+function writeFile() {
+    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+    navigator.webkitPersistentStorage.requestQuota(5 * 1024, granted, errorHandler);
+}
+
+function granted(grantedBytes) {
+    console.log("Granted: " + grantedBytes);
+    window.requestFileSystem(PERSISTENT, grantedBytes, successCallback, errorHandler);
+}
+
+
+function successCallback(fs) {
+    console.log('Opened file system: ' + fs.name);
+    console.log(fs.root);
+    console.log("Want to get file");
+    fs.root.getFile('log.txt', {create: true}, gotFile, errorHandler);
+    console.log("next step");
 }
 
 
