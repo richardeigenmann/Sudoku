@@ -71,11 +71,6 @@ TD {
   display: none;
 }
 
-LI {
-  list-style-type: none;
-  
-}
-
 .stuff{
   
   -webkit-touch-callout: none;
