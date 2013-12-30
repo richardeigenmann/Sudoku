@@ -1,6 +1,7 @@
 function load() {
   var outerDiv = document.getElementById("Sudoku");
   drawGrid(outerDiv);
+  console.log("hello Kaspar!");
 }
 
 function doSubNumberClick() {
@@ -33,7 +34,7 @@ function doRedraw() {
 function pickNumber(row, col, number) {
   setNumber( row, col, number);
   findCollisions( row, col, number);
-  removeOptions( row,col,number );
+  //removeOptions( row,col,number );
 }
 
 function doClear() {
@@ -138,8 +139,19 @@ function recordStep( row, col, number ) {
   var li = document.createElement("li");
   li.appendChild(checkbox);
   li.appendChild(document.createTextNode("Row: "+row+" Col: "+col+": "+number));
+
+  var deleteButton = document.createElement("button");
+  deleteButton.innerHTML = 'deleteButton';
+  deleteButton.onclick = doDeleteButtonClick;
+  li.appendChild( deleteButton );
   
   steps.appendChild(li);
+}
+
+function doDeleteButtonClick(e) {
+  console.log(e.srcElement.parentNode);
+  e.srcElement.parentNode.parentNode.remove(e.srcElement.parentNode);
+  doRedraw();
 }
 
 function findCollisions(row, col, number) {
@@ -234,3 +246,82 @@ function getNumber(row,col){
     return node.textContent ? node.textContent : node.innerText;
   }
 }
+
+
+function writeFile() {
+  window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+  navigator.webkitPersistentStorage.requestQuota( 5*1024, granted, errorHandler);
+}                        
+
+function granted(grantedBytes) {
+  console.log("Granted: " + grantedBytes);
+  window.requestFileSystem(PERSISTENT, grantedBytes, successCallback, errorHandler);
+}
+
+
+function successCallback(fs ) {
+  console.log('Opened file system: ' + fs.name);
+  console.log(fs.root);
+  console.log("Want to get file");
+  fs.root.getFile('log.txt', {create: true}, gotFile , errorHandler);
+  console.log("next step");
+}
+
+
+function gotFile(fileEntry) {
+    console.log("GotFile");
+    // fileEntry.isFile === true
+    // fileEntry.name == 'log.txt'
+    // fileEntry.fullPath == '/log.txt'
+    
+    // Create a FileWriter object for our FileEntry (log.txt).
+    fileEntry.createWriter(function(fileWriter) {
+      console.log("writer created");
+      
+      fileWriter.onwriteend = function(e) {
+        console.log('Write completed.');
+      };
+      
+      fileWriter.onerror = function(e) {
+        console.log('Write failed: ' + e.toString());
+      };
+      
+      // Create a new Blob and write it to log.txt.
+      var blob = new Blob(['Lorem Ipsum'], {type: 'text/plain'});
+      console.log("Blob created");
+      
+      fileWriter.write(blob);
+      console.log("Blob written");
+    }, errorHandler);
+    
+  }
+
+function errorHandler(e) {
+  var msg = '';
+  
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
+    case FileError.NOT_FOUND_ERR:
+      msg = 'NOT_FOUND_ERR';
+      break;
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
+      break;
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
+      break;
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
+      break;
+    default:
+      msg = 'Unknown Error';
+      break;
+  };
+  console.log(e);
+  console.log('Error: ' +e.name);
+}
+
+
+
