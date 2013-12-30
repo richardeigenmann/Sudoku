@@ -80,6 +80,11 @@ TABLE.subNumberTable TD:hover {
     background-color: yellow;
 }
 
+TABLE.subNumberTable TD.singleton {
+    border-color: greenyellow;
+    border-width: medium;
+}
+
 TD {
     vertical-align: top;
 }
@@ -110,4 +115,18 @@ OL {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.dropzone {
+    border-width:1px;	
+    border-style:dashed;
+    width: 150px;
+    height:70px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.dropzone:hover {
+    border-width:5px;
+    background-color: grey;
 }
