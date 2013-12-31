@@ -1,10 +1,12 @@
 Sudoku visualiser
-=================
+-----------------
 
 "You might lose the fun in solving Sudoku puzzles 
 but I certainly had fun writing this HTML5 app."
 
+
 Run directly on GitHub: http://richardeigenmann.github.io/Sudoku/
+
 
 Description: This app draws a Sudoku grid and allows the user to pick the numbers 
 she wants to place in the grid. As each number is picked the options 
@@ -14,7 +16,9 @@ it is highlighted.
 The steps and puzzle can be saved by clicking the save button. To reload
 a saved puzzle drag the saved file over the list of steps.
 
+
 Wikipedia on Sudoku: http://en.wikipedia.org/wiki/Sudoku
+
 Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Behind_SudoKu.pdf
 
 
