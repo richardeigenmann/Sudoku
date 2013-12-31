@@ -18,7 +18,7 @@
     user-select: none;
 }
 
-.stepsList {
+.stepsDiv {
     display: table-cell;   
     width: 400px;
     border:1px solid #ccc;
