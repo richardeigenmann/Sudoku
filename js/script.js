@@ -13,7 +13,7 @@
  * Main entry point 
  */
 function load() {
-    doClear();
+    drawGrid();
 
     // Setup the dnd listeners.
     var dropZone = document.getElementById('stepsDiv');
@@ -38,7 +38,7 @@ function doSubNumberClick() {
  * Clears the grid and applies one step after the other.
   */
 function doRedraw() {
-    doClear();
+    drawGrid();
 
     var liElements = document.getElementsByTagName('li');
     var li = null;
@@ -60,6 +60,14 @@ function doRedraw() {
     }
 }
 
+/**
+ * Picks the number on the grid, finds collisions, removes the invalidated
+ * options and highlight singletons.
+ * @param {type} row
+ * @param {type} col
+ * @param {type} number
+ * @returns {undefined}
+ */
 function pickNumber(row, col, number) {
     setNumber(row, col, number);
     findCollisions(row, col, number);
@@ -68,23 +76,21 @@ function pickNumber(row, col, number) {
 }
 
 /**
- * Clears the Sudoku grid and calls drawGrid
+ * Clears the steps array
  * @returns {undefined}
  */
-function doClear() {
+function clearSteps() {
     var steps = document.getElementById("steps");
     steps.innerHTML = "";
-
-    drawGrid(document.getElementById("Sudoku"));
+    drawGrid();
 }
-
 
 /**
  * Draws the Sudoku grid with the appropriate class elements.
  * @param {type} baseElement
  * @returns {undefined}
  */
-function drawGrid(baseElement) {
+function drawGrid() {
     var outerTable = document.createElement("Table");
     outerTable.className = "outer";
 
@@ -97,6 +103,7 @@ function drawGrid(baseElement) {
         outerTable.appendChild(mainRow);
     }
 
+    var baseElement = document.getElementById("Sudoku");
     while (baseElement.hasChildNodes()) {
         baseElement.removeChild(baseElement.lastChild);
     }
@@ -270,6 +277,7 @@ function getNumber(row, col) {
  * @returns {undefined}
  */
 function findCollisions(row, col, number) {
+    console.log("finding collisions...");
     // check row
     for (var i = 1; i < 10; i++) {
         if (i == col)
@@ -312,6 +320,7 @@ function findCollisions(row, col, number) {
  * @returns {undefined}
  */
 function flagCollisions(row1, col1, row2, col2) {
+    console.log(row1,col1,row2,col2);
     var firstNumber = document.getElementById("span" + row1 + col1);
     var secondNumber = document.getElementById("span" + row2 + col2);
     firstNumber.className = "collisionNumberSpan";
@@ -413,7 +422,7 @@ function isSingleton(row, col, index) {
     // check row
     var rowSingleton = true;
     for (var testCol = 1; testCol < 10; testCol++) {
-        if (testCol == col) {
+        if (testCol === col) {
             continue; //self
         }
         var test = getNumber(row, testCol);
@@ -432,7 +441,7 @@ function isSingleton(row, col, index) {
     // check col
     var colSingleton = true;
     for (var testRow = 1; testRow < 10; testRow++) {
-        if (testRow == row) {
+        if (testRow === row) {
             continue; //self
         }
         var test = getNumber(testRow, col);
@@ -483,11 +492,11 @@ function writeFile() {
     for (var x = 1; x < 10; x++) {
         for (var y = 1; y < 10; y++) {
             var number = getNumber(x, y);
-            csvData = csvData + number + ","
+            csvData = csvData + number + ",";
         }
-        csvData = csvData + "\n"
+        csvData = csvData + "\n";
     }
-    csvData = csvData + "\n"
+    csvData = csvData + "\n";
 
     var liElements = document.getElementsByTagName('li');
     var li = null;
@@ -536,7 +545,7 @@ function doDropFile(evt) {
         reader.onload = (function(theFile) {
             return function(e) {
                 var data = e.target.result;
-                doClear();
+                clearSteps();
                 var startPosition = 0;
                 var foundPosition = data.indexOf("Row", startPosition);
                 while (foundPosition > 0) {
