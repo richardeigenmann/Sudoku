@@ -17,7 +17,7 @@ The steps and puzzle can be saved by clicking the save button. To reload
 a saved puzzle drag the saved file over the list of steps.
 
 
-Wikipedia on Sudoku: http://en.wikipedia.org/wiki/Sudoku
+Wikipedia on Sudoku: http://en.wikipedia.org/wiki/Sudoku 
 Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Behind_SudoKu.pdf
 
 
