@@ -8,24 +8,24 @@
     </head>
     <body onload="load()">
 
+        <h2>Sudoku visualiser</h2>
         <div class="mainDiv">
             <div class="mainRow">
                 <div id="Sudoku" class="sudokuDiv"></div>
-                <div class="stepsList">
+                <div class="stepsList" id="stepsList">
                     <div class="innerStepsList" id="innerStepsList">
                         <ol id="steps">
                         </ol>
                     </div>
+                    <!-- <button onclick="doRedraw()">Redraw</button> -->
+                    <button onclick="doClear()">Clear</button>
+                    <button onclick="writeFile()">Save</button>
+                    (drag file here to load)
                 </div>
             </div>
         </div>
-
-        <button onclick="doRedraw()">Redraw</button>
-        <button onclick="doClear()">Clear</button>
-        <button onclick="writeFile()">Save</button>
-
-        <div class="dropzone" id="drop_zone">Drop file to load here</div>
-        <output id="list"></output>
-
+        <p>Written by <a href="http://richieigenmann.users.sourceforge.net/">Richard Eigenmann</a><br>
+            License: GPL v2<br>
+            Code: <a href="https://github.com/richardeigenmann/Sudoku">https://github.com/richardeigenmann/Sudoku</a></p>
     </body>
 </html>

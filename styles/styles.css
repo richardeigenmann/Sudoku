@@ -1,6 +1,4 @@
-
 .mainDiv {
-    width: 100%; 
     display: table;
 }
 
@@ -9,23 +7,29 @@
 }
 
 .sudokuDiv {
-    width: 600px; 
+    width: 550px; 
     display: table-cell;
     vertical-align: top;
+    -webkit-user-select: none;
+    /*-webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;*/
+    user-select: none;
 }
 
 .stepsList {
-    display: table-cell;    
+    display: table-cell;   
+    width: 400px;
     border:1px solid #ccc;
     vertical-align: top;
-
 }
 
 .innerStepsList {
-    height: 500px;
-    overflow: scroll;
+    height: 485px;
+    overflow-y: scroll;
+    margin-bottom: 15px;
 }
-
 
 TABLE.outer {
     border-spacing: 0;
@@ -33,13 +37,6 @@ TABLE.outer {
     border-color: black;
     border-width: medium;
 
-}
-
-TABLE.mainblock {
-    border-spacing: 0;
-    border-style: solid;
-    border-color: black;
-    border-width: thin;
 }
 
 TD.mainBlock {
@@ -79,7 +76,7 @@ TABLE.subNumberTable TD.singleton {
 }
 
 TD {
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 .visibleNumberSpan {
@@ -97,29 +94,3 @@ TD {
     display: none;
 }
 
-OL {
-    overflow:auto;
-}
-.stuff{
-
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.dropzone {
-    border-width:1px;	
-    border-style:dashed;
-    width: 150px;
-    height:70px;
-    padding: 10px;
-    margin: 10px;
-}
-
-.dropzone:hover {
-    border-width:5px;
-    background-color: grey;
-}

@@ -3,7 +3,7 @@ function load() {
     drawGrid(outerDiv);
 
     // Setup the dnd listeners.
-    var dropZone = document.getElementById('drop_zone');
+    var dropZone = document.getElementById('stepsList');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
 
@@ -15,7 +15,7 @@ function doSubNumberClick() {
     var col = source.substring(10, 11);
     var number = source.substring(12, 13);
     pickNumber(row, col, number);
-    recordStep(row, col, number);
+    recordStep(row, col, number, "show");
 }
 
 function doRedraw() {
@@ -26,14 +26,18 @@ function doRedraw() {
     var li = null;
     for (var i = 0; i < liElements.length; ++i) {
         var li = liElements[i];
-        console.log(li);
         var checkbox = li.firstChild;
         if (checkbox.checked) {
             var textNode = checkbox.nextSibling;
             var row = textNode.substringData(5, 1);
             var col = textNode.substringData(12, 1);
             var number = textNode.substringData(15, 1);
-            pickNumber(row, col, number);
+            var show = textNode.substringData(17, 4);
+            if ( show === "show") {
+                pickNumber(row, col, number);
+            } else {
+                removeOption(row,col,number);
+            }
         }
     }
 }
@@ -52,7 +56,6 @@ function doClear() {
     var outerDiv = document.getElementById("Sudoku");
     drawGrid(outerDiv);
 }
-
 
 
 function drawGrid(baseElement) {
@@ -128,7 +131,6 @@ function getSubNumberTable(row, col) {
     return subNumberTable;
 }
 
-
 function setNumber(row, col, number) {
     var span = document.getElementById("span" + row + col);
     var subNumberTable = document.getElementById("subTable" + row + col);
@@ -137,7 +139,7 @@ function setNumber(row, col, number) {
     subNumberTable.className = "displayNone";
 }
 
-function recordStep(row, col, number) {
+function recordStep(row, col, number, show) {
     var steps = document.getElementById("steps");
     var checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -146,7 +148,7 @@ function recordStep(row, col, number) {
 
     var li = document.createElement("li");
     li.appendChild(checkbox);
-    li.appendChild(document.createTextNode("Row: " + row + " Col: " + col + ": " + number));
+    li.appendChild(document.createTextNode("Row: " + row + " Col: " + col + ": " + number + " " + show));
 
     li.appendChild(document.createTextNode(" "));
 
@@ -154,6 +156,12 @@ function recordStep(row, col, number) {
     deleteButton.innerHTML = "delete";
     deleteButton.onclick = doDeleteButtonClick;
     li.appendChild(deleteButton);
+
+    var hideButton = document.createElement("button");
+    hideButton.innerHTML = "hide";
+    hideButton.onclick = doHideButtonClick;
+    li.appendChild(hideButton);
+
     steps.appendChild(li);
 
     var innerStepsList = document.getElementById("innerStepsList");
@@ -162,6 +170,16 @@ function recordStep(row, col, number) {
 
 function doDeleteButtonClick(e) {
     e.srcElement.parentNode.parentNode.removeChild(e.srcElement.parentNode);
+    doRedraw();
+}
+
+function doHideButtonClick(e) {
+    var li = e.srcElement.parentNode;
+    var textNode = li.childNodes[1];
+    var string = textNode.nodeValue;
+    string = string.replace ("show","hide");
+    textNode.nodeValue=string;
+
     doRedraw();
 }
 
@@ -245,6 +263,14 @@ function removeOptions(row, col, number) {
     }
 }
 
+
+/**
+ * Removes a subindex option
+ * @param {type} row
+ * @param {type} col
+ * @param {type} number
+ * @returns {undefined}
+ */
 function removeOption(row, col, number) {
     var subNumber = document.getElementById("subNumber" + row + col + "." + number);
     subNumber.className = "displayNone";
@@ -257,22 +283,6 @@ function removeOption(row, col, number) {
 function getNumber(row, col) {
     var span = document.getElementById("span" + row + col);
     var name = span.className;
-    if (name === "displayNone") {
-        return 0;
-    } else {
-        node = span.firstChild;
-        return node.textContent ? node.textContent : node.innerText;
-    }
-}
-
-
-
-function successCallback(fs) {
-    console.log('Opened file system: ' + fs.name);
-    console.log(fs.root);
-    console.log("Want to get file");
-    fs.root.getFile('log.txt', {create: true}, gotFile, errorHandler);
-    console.log("next step");
     if (name === "displayNone") {
         return 0;
     } else {
@@ -303,13 +313,13 @@ function writeFile() {
             var row = textNode.substringData(5, 1);
             var col = textNode.substringData(12, 1);
             var number = textNode.substringData(15, 1);
-            csvData = csvData + "Row: " + row + " Col: " + col + " Number: " + number + "\n";
+            var show = textNode.substringData(17, 4);
+            csvData = csvData + "Row: " + row + " Col: " + col + " Number: " + number + " Show: " + show + "\n";
         }
     }
 
     window.open('data:text/csv;charset=utf-8,' + escape(csvData));
 }
-
 
 
 function handleFileSelect(evt) {
@@ -331,8 +341,9 @@ function handleFileSelect(evt) {
                     var row = data.substring(foundPosition + 5, foundPosition + 6);
                     var col = data.substring(foundPosition + 12, foundPosition + 13);
                     var number = data.substring(foundPosition + 22, foundPosition + 23);
+                    var show = data.substring(foundPosition + 30, foundPosition + 34);
                     pickNumber(row, col, number);
-                    recordStep(row, col, number);
+                    recordStep(row, col, number, show);
                     foundPosition = data.indexOf("Row", foundPosition + 1)
                 }
             };
@@ -386,7 +397,6 @@ function isSingleton(row, col, index) {
             break;
         }
     }
-
 
     // check col
     var colSingleton = true;
