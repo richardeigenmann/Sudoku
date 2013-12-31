@@ -42,7 +42,7 @@ function pickNumber(row, col, number) {
     setNumber(row, col, number);
     findCollisions(row, col, number);
     removeOptions(row, col, number);
-    //highlightSingletons();
+    highlightSingletons();
 }
 
 function doClear() {
@@ -297,7 +297,6 @@ function writeFile() {
     var li = null;
     for (var i = 0; i < liElements.length; ++i) {
         var li = liElements[i];
-        console.log(li);
         var checkbox = li.firstChild;
         if (checkbox.checked) {
             var textNode = checkbox.nextSibling;
@@ -309,83 +308,6 @@ function writeFile() {
     }
 
     window.open('data:text/csv;charset=utf-8,' + escape(csvData));
-}
-
-
-function writeFileOld() {
-    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-    navigator.webkitPersistentStorage.requestQuota(5 * 1024, granted, errorHandler);
-}
-
-function granted(grantedBytes) {
-    console.log("Granted: " + grantedBytes);
-    window.requestFileSystem(PERSISTENT, grantedBytes, successCallback, errorHandler);
-}
-
-
-function successCallback(fs) {
-    console.log('Opened file system: ' + fs.name);
-    console.log(fs.root);
-    console.log("Want to get file");
-    fs.root.getFile('log.txt', {create: true}, gotFile, errorHandler);
-    console.log("next step");
-}
-
-
-function gotFile(fileEntry) {
-    console.log("GotFile");
-    // fileEntry.isFile === true
-    // fileEntry.name == 'log.txt'
-    // fileEntry.fullPath == '/log.txt'
-
-    // Create a FileWriter object for our FileEntry (log.txt).
-    fileEntry.createWriter(function(fileWriter) {
-        console.log("writer created");
-
-        fileWriter.onwriteend = function(e) {
-            console.log('Write completed.');
-        };
-
-        fileWriter.onerror = function(e) {
-            console.log('Write failed: ' + e.toString());
-        };
-
-        // Create a new Blob and write it to log.txt.
-        var blob = new Blob(['Lorem Ipsum'], {type: 'text/plain'});
-        console.log("Blob created");
-
-        fileWriter.write(blob);
-        console.log("Blob written");
-    }, errorHandler);
-
-}
-
-function errorHandler(e) {
-    var msg = '';
-
-    switch (e.code) {
-        case FileError.QUOTA_EXCEEDED_ERR:
-            msg = 'QUOTA_EXCEEDED_ERR';
-            break;
-        case FileError.NOT_FOUND_ERR:
-            msg = 'NOT_FOUND_ERR';
-            break;
-        case FileError.SECURITY_ERR:
-            msg = 'SECURITY_ERR';
-            break;
-        case FileError.INVALID_MODIFICATION_ERR:
-            msg = 'INVALID_MODIFICATION_ERR';
-            break;
-        case FileError.INVALID_STATE_ERR:
-            msg = 'INVALID_STATE_ERR';
-            break;
-        default:
-            msg = 'Unknown Error';
-            break;
-    }
-    ;
-    console.log(e);
-    console.log('Error: ' + e.name);
 }
 
 
@@ -446,67 +368,66 @@ function highlightSingletons() {
 }
 
 function isSingleton(row, col, index) {
-    if (row === 1) {
-        console.log("row:" + row + "col:" + col + "sub:" + index + "--> could be a singleton");
-    }
-
     // check row
     var rowSingleton = true;
-    for (var i = 1; i < 10; i++) {
-        if (row === 1) { console.log("testing: "+row +"/"+i); }
-        if (i == col)
+    for (var testCol = 1; testCol < 10; testCol++) {
+        if (testCol == col) {
             continue; //self
-        var test = getNumber(row, i);
-        if (test == index) {
-            rowSingleton = false;
-            break;
         }
-        var subNumberElement = document.getElementById("subNumber" + row + i + "." + index);
+        var test = getNumber(row, testCol);
+        if (test > 0) {
+            continue;
+        }
+        var subNumberElement = document.getElementById("subNumber" + row + testCol + "." + index);
         var subNumberClass = subNumberElement.className;
         if (!(subNumberClass === "displayNone")) {
+            // it is showing therefor is not a singleton
             rowSingleton = false;
             break;
         }
     }
 
 
-    var colSingleton = false;
-    /*for (var i = 1; i < 10; i++) {
-     if (i == row)
-     continue; //self
-     var test = getNumber(i, col);
-     if (test == index) {
-     colSingleton = false;
-     break;
-     }
-     var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
-     var subNumberClass = subNumberElement.className;
-     if (!(subNumberClass === "displayNone")) {
-     colSingleton = false;
-     break;
-     }
-     }*/
+    // check col
+    var colSingleton = true;
+    for (var testRow = 1; testRow < 10; testRow++) {
+        if (testRow == row) {
+            continue; //self
+        }
+        var test = getNumber(testRow, col);
+        if (test > 0) {
+            continue;
+        }
+        var subNumberElement = document.getElementById("subNumber" + testRow + col + "." + index);
+        var subNumberClass = subNumberElement.className;
+        if (!(subNumberClass === "displayNone")) {
+            // it is showing therefore is not a singleton
+            colSingleton = false;
+            break;
+        }
+    }
+
     // check grid
-    var gridSingleton = false;
-    /*var x = Math.floor((row - 1) / 3) * 3 + 1;
-     var y = Math.floor((col - 1) / 3) * 3 + 1;
-     for (var i = x; i < x + 3; i++) {
-     for (var j = y; j < y + 3; j++) {
-     if ((i == row) && (j == col))
-     continue; //self
-     var test = getNumber(i, j);
-     if (test == index) {
-     gridSingleton = false;
-     break;
-     }
-     var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
-     var subNumberClass = subNumberElement.className;
-     if (!(subNumberClass === "displayNone")) {
-     gridSingleton = false;
-     break;
-     }
-     }
-     }*/
+    var gridSingleton = true;
+    var x = Math.floor((row - 1) / 3) * 3 + 1;
+    var y = Math.floor((col - 1) / 3) * 3 + 1;
+    for (var i = x; i < x + 3; i++) {
+        for (var j = y; j < y + 3; j++) {
+            if ((i === row) && (j === col)) {
+                continue; //self
+            }
+            var test = getNumber(i, j);
+            if (test > 0) {
+                continue;
+            }
+            var subNumberElement = document.getElementById("subNumber" + i + j + "." + index);
+            var subNumberClass = subNumberElement.className;
+            if (!(subNumberClass === "displayNone")) {
+                gridSingleton = false;
+                break;
+            }
+        }
+    }
 
     return rowSingleton || colSingleton || gridSingleton;
 }
