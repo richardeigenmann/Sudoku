@@ -61,7 +61,8 @@ function doRedraw() {
 }
 
 /**
- * Picks the number on the grid, finds collisions, removes the invalidated
+ * Main interaction point: Picks the number on the grid, 
+ * finds collisions and highlights them, dimms the invalidated
  * options and highlight singletons.
  * @param {type} row
  * @param {type} col
@@ -397,7 +398,7 @@ function highlightSingletons() {
                 for (var i = 1; i < 10; i++) {
                     var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
                     var subNumberClass = subNumberElement.className;
-                    if (!(subNumberClass === "displayNone")) {
+                    if (!(subNumberClass === "pickedNumber")) {
                         if (isSingleton(row, col, i)) {
                             subNumberElement.className = "singleton";
                         }
