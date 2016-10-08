@@ -320,10 +320,10 @@ function findCollisions(row, col, number) {
  */
 function flagCollisions(row1, col1, row2, col2) {
     console.log(row1,col1,row2,col2);
-    var firstNumber = document.getElementById("span" + row1 + col1);
-    var secondNumber = document.getElementById("span" + row2 + col2);
-    firstNumber.className = "collisionNumberSpan";
-    secondNumber.className = "collisionNumberSpan";
+    var firstNumber = document.getElementById("cell" + row1 + col1);
+    var secondNumber = document.getElementById("cell" + row2 + col2);
+    firstNumber.className = "numberCell collisionNumberSpan";
+    secondNumber.className = "numberCell collisionNumberSpan";
 }
 
 /**

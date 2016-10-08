@@ -39,6 +39,10 @@ TABLE.outer {
 
 }
 
+TD {
+    vertical-align: middle;
+}
+
 TD.mainBlock {
     border-spacing: 0;
     border-style: solid;
@@ -51,6 +55,8 @@ TD.mainBlock {
     height: 50px;
     vertical-align: middle;
     text-align: center;
+    font-size:20pt;
+    font-family: sans-serif;
 }
 
 TABLE.subNumberTable {
@@ -76,18 +82,13 @@ TABLE.subNumberTable TD.singleton {
     border-width: medium;
 }
 
-TD {
-    vertical-align: middle;
-}
+
 
 .visibleNumberSpan {
-    font-family: sans-serif;
-    font-size:20pt;
+    
 }
 
 .collisionNumberSpan {
-    font-family: sans-serif;
-    font-size:20pt;
     background-color: red;
 }
 
