@@ -36,7 +36,7 @@ function doSubNumberClick() {
 
 /**
  * Clears the grid and applies one step after the other.
-  */
+ */
 function doRedraw() {
     drawGrid();
 
@@ -61,7 +61,8 @@ function doRedraw() {
 }
 
 /**
- * Picks the number on the grid, finds collisions, removes the invalidated
+ * Main interaction point: Picks the number on the grid, 
+ * finds collisions and highlights them, dimms the invalidated
  * options and highlight singletons.
  * @param {type} row
  * @param {type} col
@@ -70,6 +71,7 @@ function doRedraw() {
  */
 function pickNumber(row, col, number) {
     setNumber(row, col, number);
+    highlightCompleted();
     findCollisions(row, col, number);
     removeOptions(row, col, number);
     highlightSingletons();
@@ -131,8 +133,7 @@ function getMainBlock(rowNumber, colNumber) {
             var numberSpan = document.createElement("span");
             numberSpan.className = "displayNone";
             numberSpan.id = "span" + (rowNumber + i) + "" + (colNumber + j);
-            numberSpan.appendChild(document.createTextNode("row: " + (rowNumber + i) + " col: " + (colNumber + j)));
-
+            numberSpan.appendChild(document.createTextNode(""));
             numberCell.appendChild(numberSpan);
             numberCell.appendChild(getSubNumberTable(rowNumber + i, colNumber + j));
 
@@ -182,7 +183,7 @@ function setNumber(row, col, number) {
     var span = document.getElementById("span" + row + col);
     var subNumberTable = document.getElementById("subTable" + row + col);
     span.innerHTML = number;
-    span.className = "visibleNumberSpan";
+    span.className = "";
     subNumberTable.className = "displayNone";
 }
 
@@ -277,7 +278,6 @@ function getNumber(row, col) {
  * @returns {undefined}
  */
 function findCollisions(row, col, number) {
-    console.log("finding collisions...");
     // check row
     for (var i = 1; i < 10; i++) {
         if (i == col)
@@ -320,11 +320,10 @@ function findCollisions(row, col, number) {
  * @returns {undefined}
  */
 function flagCollisions(row1, col1, row2, col2) {
-    console.log(row1,col1,row2,col2);
-    var firstNumber = document.getElementById("span" + row1 + col1);
-    var secondNumber = document.getElementById("span" + row2 + col2);
-    firstNumber.className = "collisionNumberSpan";
-    secondNumber.className = "collisionNumberSpan";
+    var firstCell = document.getElementById("cell" + row1 + col1);
+    var secondCell = document.getElementById("cell" + row2 + col2);
+    firstCell.className = "numberCell collision";
+    secondCell.className = "numberCell collision";
 }
 
 /**
@@ -341,8 +340,7 @@ function removeOptions(row, col, number) {
     for (var i = 1; i < 10; i++) {
         if (i === col)
             continue;
-        var test = getNumber(row, i);
-        if (test === 0) {
+        if (getNumber(row, i) === 0) {
             removeOption(row, i, number);
         }
     }
@@ -350,8 +348,7 @@ function removeOptions(row, col, number) {
     for (var i = 1; i < 10; i++) {
         if (i === row)
             continue;
-        var test = getNumber(i, col);
-        if (test === 0) {
+        if (getNumber(i, col) === 0) {
             removeOption(i, col, number);
         }
     }
@@ -362,8 +359,7 @@ function removeOptions(row, col, number) {
         for (var j = y; j < y + 3; j++) {
             if ((i === row) && (j === col))
                 continue;
-            var test = getNumber(i, j);
-            if (test === 0) {
+            if (getNumber(i, j) === 0) {
                 removeOption(i, j, number);
             }
         }
@@ -380,7 +376,7 @@ function removeOptions(row, col, number) {
  */
 function removeOption(row, col, number) {
     var subNumber = document.getElementById("subNumber" + row + col + "." + number);
-    subNumber.className = "displayNone";
+    subNumber.className = "pickedNumber";
 }
 
 
@@ -398,7 +394,7 @@ function highlightSingletons() {
                 for (var i = 1; i < 10; i++) {
                     var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
                     var subNumberClass = subNumberElement.className;
-                    if (!(subNumberClass === "displayNone")) {
+                    if (!(subNumberClass === "pickedNumber")) {
                         if (isSingleton(row, col, i)) {
                             subNumberElement.className = "singleton";
                         }
@@ -423,16 +419,14 @@ function isSingleton(row, col, index) {
     var rowSingleton = true;
     for (var testCol = 1; testCol < 10; testCol++) {
         if (testCol === col) {
-            continue; //self
+            continue; //self don't need to check whether a number was picked on my own cell
         }
-        var test = getNumber(row, testCol);
-        if (test > 0) {
-            continue;
+        if (getNumber(row, testCol) > 0) {
+            continue; // 
         }
         var subNumberElement = document.getElementById("subNumber" + row + testCol + "." + index);
-        var subNumberClass = subNumberElement.className;
-        if (!(subNumberClass === "displayNone")) {
-            // it is showing therefor is not a singleton
+        if (!(subNumberElement.className === "pickedNumber")) {
+            // it is showing therefore is not a singleton
             rowSingleton = false;
             break;
         }
@@ -444,13 +438,11 @@ function isSingleton(row, col, index) {
         if (testRow === row) {
             continue; //self
         }
-        var test = getNumber(testRow, col);
-        if (test > 0) {
+        if (getNumber(testRow, col) > 0) {
             continue;
         }
         var subNumberElement = document.getElementById("subNumber" + testRow + col + "." + index);
-        var subNumberClass = subNumberElement.className;
-        if (!(subNumberClass === "displayNone")) {
+        if (!(subNumberElement.className === "pickedNumber")) {
             // it is showing therefore is not a singleton
             colSingleton = false;
             break;
@@ -466,20 +458,82 @@ function isSingleton(row, col, index) {
             if ((i === row) && (j === col)) {
                 continue; //self
             }
-            var test = getNumber(i, j);
-            if (test > 0) {
+            if (getNumber(i, j) > 0) {
                 continue;
             }
             var subNumberElement = document.getElementById("subNumber" + i + j + "." + index);
-            var subNumberClass = subNumberElement.className;
-            if (!(subNumberClass === "displayNone")) {
+            if (!(subNumberElement.className === "pickedNumber")) {
                 gridSingleton = false;
                 break;
             }
         }
     }
 
-    return rowSingleton || colSingleton || gridSingleton;
+    // only one pickable
+    var onlyOnePickable = true;
+    for (var i = 1; i < 10; i++) {
+        if (i === index) {
+            continue; // self
+        }
+        var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
+        if (!(subNumberElement.className === "pickedNumber")) {
+            onlyOnePickable = false;
+            break;
+        }
+    }
+
+    return rowSingleton || colSingleton || gridSingleton || onlyOnePickable;
+}
+
+
+/**
+ * This function highlights completed rows, columns and blocks
+ * @returns nothing
+ */
+function highlightCompleted() {
+    for (var row = 1; row < 10; row++) {
+        var sum = 0;
+        for (var col = 1; col < 10; col++) {
+            sum += parseInt(getNumber(row, col));
+        }
+        if (sum === 45) {
+            for (var col = 1; col < 10; col++) {
+                var cell = document.getElementById("cell" + row + col);
+                cell.className = "numberCell completed";
+            }
+        }
+    }
+    for (var col = 1; col < 10; col++) {
+        var sum = 0;
+        for (var row = 1; row < 10; row++) {
+            sum += parseInt(getNumber(row, col));
+        }
+        if (sum === 45) {
+            for (var row = 1; row < 10; row++) {
+                var cell = document.getElementById("cell" + row + col);
+                cell.className = "numberCell completed";
+            }
+        }
+    }
+    for (var blockRow = 0; blockRow < 3; blockRow++) {
+        for (var blockCol = 0; blockCol < 3; blockCol++) {
+            var sum = 0;
+            for (var row = blockRow * 3 + 1; row < blockRow * 3 + 4; row++) {
+                for (var col = blockCol * 3 + 1; col < blockCol * 3 + 4; col++) {
+                    sum += parseInt(getNumber(row, col));
+                }
+            }
+            if (sum === 45) {
+                for (var row = blockRow * 3 + 1; row < blockRow * 3 + 4; row++) {
+                    for (var col = blockCol * 3 + 1; col < blockCol * 3 + 4; col++) {
+                        var cell = document.getElementById("cell" + row + col);
+                        cell.className = "numberCell completed";
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 
@@ -542,8 +596,8 @@ function doDropFile(evt) {
         var reader = new FileReader();
 
         // Closure to capture the file information.
-        reader.onload = (function(theFile) {
-            return function(e) {
+        reader.onload = (function (theFile) {
+            return function (e) {
                 var data = e.target.result;
                 clearSteps();
                 var startPosition = 0;
@@ -556,7 +610,7 @@ function doDropFile(evt) {
                     if (show === "show") {
                         pickNumber(row, col, number);
                     } else {
-                        removeOption(row,col,number);
+                        removeOption(row, col, number);
                     }
                     recordStep(row, col, number, show);
                     foundPosition = data.indexOf("Row", foundPosition + 1);
