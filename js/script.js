@@ -131,8 +131,7 @@ function getMainBlock(rowNumber, colNumber) {
             var numberSpan = document.createElement("span");
             numberSpan.className = "displayNone";
             numberSpan.id = "span" + (rowNumber + i) + "" + (colNumber + j);
-            numberSpan.appendChild(document.createTextNode("row: " + (rowNumber + i) + " col: " + (colNumber + j)));
-
+            numberSpan.appendChild(document.createTextNode( "" )); 
             numberCell.appendChild(numberSpan);
             numberCell.appendChild(getSubNumberTable(rowNumber + i, colNumber + j));
 
@@ -380,7 +379,7 @@ function removeOptions(row, col, number) {
  */
 function removeOption(row, col, number) {
     var subNumber = document.getElementById("subNumber" + row + col + "." + number);
-    subNumber.className = "displayNone";
+    subNumber.className = "pickedNumber";
 }
 
 

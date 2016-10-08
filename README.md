@@ -26,7 +26,7 @@ Motivation: In Switzerland, where I live, Sudoku is so pupular that the
 free newspapers have two puzzles in every edition. I and my partner sometimes
 like to compete against each other solving them. I usually need to copy 
 out the puzzle to a larger piece of paper so that I have enough space to 
-can write down the numbers that are possible and do the exclusion logic. I have
+write down the numbers that are possible and do the exclusion logic. I have
 long felt that I should be able to do this on the computer so here it is. I do 
 admit, it does take the challenge out of solving the puzzles and the sense of
 achievement is not the same. 
