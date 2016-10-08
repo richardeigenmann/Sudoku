@@ -78,19 +78,19 @@ TABLE.subNumberTable TD:hover {
 }
 
 TABLE.subNumberTable TD.singleton {
-    border-color: greenyellow;
+    /*border-color: greenyellow;*/
+    border-color: #1dbdae;
     border-width: medium;
 }
 
-
-
-.visibleNumberSpan {
-    
-}
-
-.collisionNumberSpan {
+.collision {
     background-color: red;
 }
+
+.completed {
+    background-color: #e1ffff;
+}
+
 
 .displayNone {
     display: none;
