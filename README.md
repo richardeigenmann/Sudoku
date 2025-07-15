@@ -6,7 +6,7 @@ My method of solving Sudo puzzles involves me writing all possible numbers into 
 
 As my partner is better at solving Sudoku puzzles, I wrote this JavaScript app in 2013 to get even.
 
-## Try it out (for free)
+## Try it out (it's free and doesn't install anything)
 
 https://richardeigenmann.github.io/Sudoku/
 
