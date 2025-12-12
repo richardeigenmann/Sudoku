@@ -35,7 +35,7 @@ Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Be
 python3 -m http.server
 ```
 
-## Buildin a Container image
+## Building a Container image
 
 ```bash
 docker build -t sudoku .
