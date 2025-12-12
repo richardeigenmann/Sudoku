@@ -7,8 +7,18 @@ metadata:
 spec:
   containers:
     - image: docker.io/richardeigenmann/sudoku:1.1
+      imagePullPolicy: Always
       name: sudoku
       ports:
         - containerPort: 80
           name: http
           protocol: TCP
+
+      livenessProbe:
+        httpGet:
+          path: /health   # Now pointing to the static file path
+          port: 80
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 3
+        timeoutSeconds: 1

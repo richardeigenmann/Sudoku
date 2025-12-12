@@ -10,4 +10,4 @@
 # docker run --rm -p 8000:80 richardeigenmann/sudoku:1.1
 
 FROM nginx:1.29.4-alpine-slim
-COPY index.html script.js styles.css /usr/share/nginx/html/
+COPY index.html script.js styles.css health /usr/share/nginx/html/
