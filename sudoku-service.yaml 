@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sudoku-service
+spec:
+  type: NodePort # This is what makes it externally accessible!
+  selector:
+    app: sudoku # Matches your Pod's label
+  ports:
+    - port: 80       # Port the Service is visible on *internally*
+      targetPort: 80 # The Service sends traffic to 80 on the Pod
+      nodePort: 30081 # The external port
