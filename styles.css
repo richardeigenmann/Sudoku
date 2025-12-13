@@ -71,9 +71,14 @@ TABLE.subNumberTable TD {
     border-style: solid;
     border-width: thin;
     font-family: sans-serif;
+    padding-left: 4px;
+    padding-right: 4px;
+
 }
 
 TABLE.subNumberTable TD:hover {
+    transform: scale(2); 
+    transform-origin: center center;
     background-color: yellow;
 }
 
