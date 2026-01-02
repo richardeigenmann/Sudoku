@@ -622,6 +622,42 @@ function doDropFile(evt) {
     }
 }
 
+function load1() {
+    clearSteps();
+    pickNumber(1,4,1);
+    pickNumber(1,5,6);
+    pickNumber(1,6,7);
+    pickNumber(1,9,3);
+    pickNumber(2,5,2);
+    pickNumber(2,6,9);
+    pickNumber(2,7,6);
+    pickNumber(2,9,5);
+    pickNumber(3,1,1);
+    pickNumber(3,3,6);
+    pickNumber(3,4,3);
+    pickNumber(4,8,5);
+    pickNumber(5,1,2);
+    pickNumber(5,2,8);
+    pickNumber(5,6,4);
+    pickNumber(5,9,1);
+    pickNumber(6,4,5);
+    pickNumber(6,7,7);
+    pickNumber(6,8,6);
+    pickNumber(7,2,6);
+    pickNumber(7,4,2);
+    pickNumber(7,5,3);
+    pickNumber(7,7,1);
+    pickNumber(7,8,4);
+    pickNumber(8,2,9);
+    pickNumber(8,3,1);
+    pickNumber(8,9,2);
+    pickNumber(9,3,4);
+    pickNumber(9,4,7);
+    pickNumber(9,9,6);
+
+}
+
+
 module.exports = {
     isSingleton,
     getNumber,
