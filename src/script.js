@@ -591,7 +591,7 @@ function doDropFile(evt) {
     evt.stopPropagation();
     evt.preventDefault();
 
-    var files = evt.dataTransfer.files; // FileList object.
+    var files = evt.dataTransfer.files; // FileList object. 
     if (files.length > 0) {
         var reader = new FileReader();
 
@@ -621,3 +621,15 @@ function doDropFile(evt) {
         reader.readAsText(files[0]);
     }
 }
+
+module.exports = {
+    isSingleton,
+    getNumber,
+    findCollisions,
+    removeOptions,
+    highlightCompleted,
+    pickNumber,
+    setNumber,
+    removeOption,
+    drawGrid
+};

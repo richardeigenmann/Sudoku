@@ -32,22 +32,50 @@ Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Be
 ## Test server
 
 ```bash
+npm start
+```
+
+Old:
+
+```bash
 python3 -m http.server
+```
+
+## Running tests
+
+```bash
+npm test
 ```
 
 ## Building a Container image
 
+To build the Docker image, run
+
+```bash
+npm run docker:build
+```
+
+To run the container, run
+
+```bash
+npm run docker:run
+```
+
+The application will be available at http://localhost:8000. That is all.
+
+Old:
+
 ```bash
 docker build -t sudoku .
-docker tag sudoku docker.io/richardeigenmann/sudoku:1.1
+docker tag sudoku docker.io/richardeigenmann/sudoku:1.2
 
 # Push it to hub.docker.com
 docker login
-docker push docker.io/richardeigenmann/sudoku:1.1
+docker push docker.io/richardeigenmann/sudoku:1.2
 
 # Run the container locally
 docker run --rm -p 8000:80 sudoku
-docker run --rm -p 8000:80 richardeigenmann/sudoku:1.1
+docker run --rm -p 8000:80 richardeigenmann/sudoku:1.2
 ```
 
 ## Deploying to a Kubernetes cluster

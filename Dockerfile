@@ -9,5 +9,20 @@
 # docker run --rm -p 8000:80 sudoku
 # docker run --rm -p 8000:80 richardeigenmann/sudoku:1.1
 
-FROM nginx:1.29.4-alpine-slim
-COPY index.html script.js styles.css health /usr/share/nginx/html/
+# Use a stable, lightweight nginx image
+FROM nginx:1.23.3-alpine
+
+# Set the working directory inside the container
+WORKDIR /usr/share/nginx/html
+
+# Remove the default nginx welcome page
+RUN rm index.html
+
+# Copy all the files from your 'src' directory into the image
+COPY src/ .
+
+# Expose port 80 for the web server
+EXPOSE 80
+
+# Command to run nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,27 @@
+{
+  "name": "sudoku",
+  "version": "1.0.0",
+  "description": "A Sudoku game and solver.",
+  "main": "src/script.js",
+  "scripts": {
+    "test": "jest",
+    "start": "live-server src/ --port=8000",
+    "docker:build": "docker build -t sudoku .",
+    "docker:run": "docker run --rm -p 8000:80 sudoku"
+  },
+  "keywords": [
+    "sudoku",
+    "game",
+    "solver"
+  ],
+  "author": "Richard Eigenmann",
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "live-server": "^1.2.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}
