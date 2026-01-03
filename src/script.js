@@ -387,13 +387,13 @@ function removeOption(row, col, number) {
  * @returns nothing
  */
 function highlightSingletons() {
-    for (var row = 1; row < 10; row++) {
-        for (var col = 1; col < 10; col++) {
-            var number = getNumber(row, col);
+    for (let row = 1; row < 10; row++) {
+        for (let col = 1; col < 10; col++) {
+            const number = getNumber(row, col);
             if (number === 0) {
-                for (var i = 1; i < 10; i++) {
-                    var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
-                    var subNumberClass = subNumberElement.className;
+                for (let i = 1; i < 10; i++) {
+                    const subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
+                    const subNumberClass = subNumberElement.className;
                     if (!(subNumberClass === "pickedNumber")) {
                         if (isSingleton(row, col, i)) {
                             subNumberElement.className = "singleton";
@@ -654,7 +654,26 @@ function load1() {
     pickNumber(9,3,4);
     pickNumber(9,4,7);
     pickNumber(9,9,6);
+}
 
+function pickFirstSingleton() {
+    for (let row = 1; row < 10; row++) {
+        for (let col = 1; col < 10; col++) {
+            const number = getNumber(row, col);
+            if (number === 0) {
+                for (let i = 1; i < 10; i++) {
+                    const subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
+                    const subNumberClass = subNumberElement.className;
+                    if (!(subNumberClass === "pickedNumber")) {
+                        if (isSingleton(row, col, i)) {
+                            pickNumber(row, col, i);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
