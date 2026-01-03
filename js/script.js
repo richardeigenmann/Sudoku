@@ -387,13 +387,13 @@ function removeOption(row, col, number) {
  * @returns nothing
  */
 function highlightSingletons() {
-    for (var row = 1; row < 10; row++) {
-        for (var col = 1; col < 10; col++) {
-            var number = getNumber(row, col);
+    for (let row = 1; row < 10; row++) {
+        for (let col = 1; col < 10; col++) {
+            const number = getNumber(row, col);
             if (number === 0) {
-                for (var i = 1; i < 10; i++) {
-                    var subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
-                    var subNumberClass = subNumberElement.className;
+                for (let i = 1; i < 10; i++) {
+                    const subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
+                    const subNumberClass = subNumberElement.className;
                     if (!(subNumberClass === "pickedNumber")) {
                         if (isSingleton(row, col, i)) {
                             subNumberElement.className = "singleton";
@@ -591,7 +591,7 @@ function doDropFile(evt) {
     evt.stopPropagation();
     evt.preventDefault();
 
-    var files = evt.dataTransfer.files; // FileList object.
+    var files = evt.dataTransfer.files; // FileList object. 
     if (files.length > 0) {
         var reader = new FileReader();
 
@@ -621,3 +621,70 @@ function doDropFile(evt) {
         reader.readAsText(files[0]);
     }
 }
+
+function load1() {
+    clearSteps();
+    pickNumber(1,4,1);
+    pickNumber(1,5,6);
+    pickNumber(1,6,7);
+    pickNumber(1,9,3);
+    pickNumber(2,5,2);
+    pickNumber(2,6,9);
+    pickNumber(2,7,6);
+    pickNumber(2,9,5);
+    pickNumber(3,1,1);
+    pickNumber(3,3,6);
+    pickNumber(3,4,3);
+    pickNumber(4,8,5);
+    pickNumber(5,1,2);
+    pickNumber(5,2,8);
+    pickNumber(5,6,4);
+    pickNumber(5,9,1);
+    pickNumber(6,4,5);
+    pickNumber(6,7,7);
+    pickNumber(6,8,6);
+    pickNumber(7,2,6);
+    pickNumber(7,4,2);
+    pickNumber(7,5,3);
+    pickNumber(7,7,1);
+    pickNumber(7,8,4);
+    pickNumber(8,2,9);
+    pickNumber(8,3,1);
+    pickNumber(8,9,2);
+    pickNumber(9,3,4);
+    pickNumber(9,4,7);
+    pickNumber(9,9,6);
+}
+
+function pickFirstSingleton() {
+    for (let row = 1; row < 10; row++) {
+        for (let col = 1; col < 10; col++) {
+            const number = getNumber(row, col);
+            if (number === 0) {
+                for (let i = 1; i < 10; i++) {
+                    const subNumberElement = document.getElementById("subNumber" + row + col + "." + i);
+                    const subNumberClass = subNumberElement.className;
+                    if (!(subNumberClass === "pickedNumber")) {
+                        if (isSingleton(row, col, i)) {
+                            pickNumber(row, col, i);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+module.exports = {
+    isSingleton,
+    getNumber,
+    findCollisions,
+    removeOptions,
+    highlightCompleted,
+    pickNumber,
+    setNumber,
+    removeOption,
+    drawGrid
+};
