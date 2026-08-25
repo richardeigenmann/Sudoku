@@ -1,16 +1,16 @@
 # docker build -t sudoku .
-# docker tag sudoku docker.io/richardeigenmann/sudoku:1.1
+# docker tag sudoku docker.io/richardeigenmann/sudoku:1.4
 
 # Push it to hub.docker.com
 # docker login
-# docker push docker.io/richardeigenmann/sudoku:1.1
+# docker push docker.io/richardeigenmann/sudoku:1.4
 
 # Run the container locally
 # docker run --rm -p 8000:80 sudoku
-# docker run --rm -p 8000:80 richardeigenmann/sudoku:1.1
+# docker run --rm -p 8000:80 richardeigenmann/sudoku:1.4
 
 # Use a stable, lightweight nginx image
-FROM nginx:1.23.3-alpine
+FROM nginx:1.28.2-alpine
 
 # Set the working directory inside the container
 WORKDIR /usr/share/nginx/html

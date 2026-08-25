@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Sudoku game and solver.",
   "main": "src/script.js",
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "test": "jest",
     "start": "live-server src/ --port=8000",
@@ -17,8 +18,8 @@
   "author": "Richard Eigenmann",
   "license": "GPL-2.0",
   "devDependencies": {
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "live-server": "^1.2.2"
   },
   "jest": {

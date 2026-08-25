@@ -32,7 +32,7 @@ Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Be
 ## Test server
 
 ```bash
-npm start
+pnpm start
 ```
 
 Old:
@@ -44,7 +44,13 @@ python3 -m http.server
 ## Running tests
 
 ```bash
-npm test
+pnpm test
+```
+
+## Fixing outdated dependencies
+
+```bash
+pnpx npm-check-updates -u 
 ```
 
 ## Building a Container image
@@ -52,13 +58,13 @@ npm test
 To build the Docker image, run
 
 ```bash
-npm run docker:build
+pnpm run docker:build
 ```
 
 To run the container, run
 
 ```bash
-npm run docker:run
+pnpm run docker:run
 ```
 
 The application will be available at http://localhost:8000. That is all.
@@ -67,15 +73,15 @@ Old:
 
 ```bash
 docker build -t sudoku .
-docker tag sudoku docker.io/richardeigenmann/sudoku:1.2
+docker tag sudoku docker.io/richardeigenmann/sudoku:1.5
 
 # Push it to hub.docker.com
 docker login
-docker push docker.io/richardeigenmann/sudoku:1.2
+docker push docker.io/richardeigenmann/sudoku:1.5
 
 # Run the container locally
 docker run --rm -p 8000:80 sudoku
-docker run --rm -p 8000:80 richardeigenmann/sudoku:1.2
+docker run --rm -p 8000:80 richardeigenmann/sudoku:1.5
 ```
 
 ## Deploying to a Kubernetes cluster
