@@ -10,7 +10,7 @@
 # docker run --rm -p 8000:80 richardeigenmann/sudoku:1.4
 
 # Use a stable, lightweight nginx image
-FROM nginx:1.28.2-alpine
+FROM nginx:1.31.4-alpine
 
 # Set the working directory inside the container
 WORKDIR /usr/share/nginx/html

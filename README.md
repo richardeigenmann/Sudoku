@@ -73,15 +73,15 @@ Old:
 
 ```bash
 docker build -t sudoku .
-docker tag sudoku docker.io/richardeigenmann/sudoku:1.5
+docker tag sudoku docker.io/richardeigenmann/sudoku:1.6
 
 # Push it to hub.docker.com
 docker login
-docker push docker.io/richardeigenmann/sudoku:1.5
+docker push docker.io/richardeigenmann/sudoku:1.6
 
 # Run the container locally
 docker run --rm -p 8000:80 sudoku
-docker run --rm -p 8000:80 richardeigenmann/sudoku:1.5
+docker run --rm -p 8000:80 richardeigenmann/sudoku:1.6
 ```
 
 ## Deploying to a Kubernetes cluster
