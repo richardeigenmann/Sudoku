@@ -9,20 +9,28 @@
 # docker run --rm -p 8000:80 sudoku
 # docker run --rm -p 8000:80 richardeigenmann/sudoku:1.4
 
-# Use a stable, lightweight nginx image
-FROM nginx:1.31.4-alpine
+# Multi-stage Docker build
+# Stage 1: Build the web assets with Node & pnpm
+FROM node:24-alpine AS builder
 
-# Set the working directory inside the container
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm build
+
+# Stage 2: Serve with lightweight Nginx
+FROM nginx:alpine
+
 WORKDIR /usr/share/nginx/html
 
 # Remove the default nginx welcome page
-RUN rm index.html
+RUN rm -rf ./*
+COPY --from=builder /app/dist .
 
-# Copy all the files from your 'src' directory into the image
-COPY src/ .
-
-# Expose port 80 for the web server
 EXPOSE 80
-
-# Command to run nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]

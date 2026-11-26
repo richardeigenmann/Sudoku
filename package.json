@@ -2,11 +2,13 @@
   "name": "sudoku",
   "version": "1.0.0",
   "description": "A Sudoku game and solver.",
-  "main": "src/script.js",
-  "packageManager": "pnpm@11.22.0",
+  "type": "module",
   "scripts": {
-    "test": "jest",
-    "start": "live-server src/ --port=8000",
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
     "docker:build": "docker build -t sudoku .",
     "docker:run": "docker run --rm -p 8000:80 sudoku"
   },
@@ -18,11 +20,11 @@
   "author": "Richard Eigenmann",
   "license": "GPL-2.0",
   "devDependencies": {
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "live-server": "^1.2.2"
+    "jsdom": "^31.0.1",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.2"
   },
-  "jest": {
-    "testEnvironment": "jsdom"
+  "dependencies": {
+    "tesseract.js": "^7.0.0"
   }
 }

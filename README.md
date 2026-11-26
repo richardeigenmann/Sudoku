@@ -8,7 +8,7 @@ As my partner is better at solving Sudoku puzzles, I wrote this JavaScript app i
 
 ## Try it out (it's free and doesn't install anything)
 
-https://richardeigenmann.github.io/Sudoku/
+<https://richardeigenmann.github.io/Sudoku/>
 
 Give me a Star if you like it!
 
@@ -26,19 +26,23 @@ This is not a Sudoku solver. It just shows you the cells that are populated and 
 
 ## Additional reading
 
-Wikipedia on Sudoku: http://en.wikipedia.org/wiki/Sudoku 
-Scientific American on Sudoku: http://www.cs.virginia.edu/~robins/The_Science_Behind_SudoKu.pdf
+Wikipedia on Sudoku: <http://en.wikipedia.org/wiki/Sudoku>
+Scientific American on Sudoku: <http://www.cs.virginia.edu/~robins/The_Science_Behind_SudoKu.pdf>
 
-## Test server
+## Development server
 
 ```bash
-pnpm start
+pnpm dev
+# or: pnpm start
+pnpm build # generates prod bundle in dist/
+pnpm preview # serves the prod build locally
 ```
 
-Old:
+## Production build
 
 ```bash
-python3 -m http.server
+pnpm build
+pnpm preview
 ```
 
 ## Running tests
@@ -67,7 +71,7 @@ To run the container, run
 pnpm run docker:run
 ```
 
-The application will be available at http://localhost:8000. That is all.
+The application will be available at <http://localhost:8000>. That is all.
 
 Old:
 

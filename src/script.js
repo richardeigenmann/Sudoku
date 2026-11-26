@@ -9,6 +9,8 @@
  * Code repository: https://github.com/richardeigenmann/Sudoku/
  */
 
+import { setupScannerUI } from './scannerUI.js';
+
 /**
  * Main entry point 
  */
@@ -17,8 +19,14 @@ function load() {
 
     // Setup the dnd listeners.
     var dropZone = document.getElementById('stepsDiv');
-    dropZone.addEventListener('dragover', doDragOver, false);
-    dropZone.addEventListener('drop', doDropFile, false);
+    if (dropZone) {
+        dropZone.addEventListener('dragover', doDragOver, false);
+        dropZone.addEventListener('drop', doDropFile, false);
+    }
+
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        setupScannerUI();
+    }
 }
 
 /**
@@ -70,6 +78,7 @@ function doRedraw() {
  * @returns {undefined}
  */
 function pickNumber(row, col, number) {
+    console.log("pickNumber: row=" + row + " col=" + col + " number=" + number);
     setNumber(row, col, number);
     highlightCompleted();
     findCollisions(row, col, number);
@@ -156,7 +165,7 @@ function getSubNumberTable(row, col) {
     var subNumberTable = document.createElement("Table");
     subNumberTable.className = "subNumberTable";
     subNumberTable.id = "subTable" + row + "" + col;
-    number = 1;
+    var number = 1;
     for (var i = 0; i < 3; i++) {
         var tr = document.createElement("TR");
         subNumberTable.appendChild(tr);
@@ -264,7 +273,7 @@ function getNumber(row, col) {
     if (name === "displayNone") {
         return 0;
     } else {
-        node = span.firstChild;
+        var node = span.firstChild;
         return node.textContent ? node.textContent : node.innerText;
     }
 }
@@ -677,7 +686,29 @@ function pickFirstSingleton() {
 }
 
 
-module.exports = {
+// Expose on window for browser inline handlers
+if (typeof window !== 'undefined') {
+    window.load = load;
+    window.doSubNumberClick = doSubNumberClick;
+    window.doRedraw = doRedraw;
+    window.pickNumber = pickNumber;
+    window.clearSteps = clearSteps;
+    window.drawGrid = drawGrid;
+    window.writeFile = writeFile;
+    window.load1 = load1;
+    window.pickFirstSingleton = pickFirstSingleton;
+
+    if (typeof document !== 'undefined' && document.getElementById('Sudoku')) {
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', load);
+        } else {
+            load();
+        }
+    }
+}
+
+// ES module exports
+export {
     isSingleton,
     getNumber,
     findCollisions,
@@ -686,5 +717,12 @@ module.exports = {
     pickNumber,
     setNumber,
     removeOption,
-    drawGrid
+    drawGrid,
+    load,
+    clearSteps,
+    recordStep,
+    writeFile,
+    load1,
+    pickFirstSingleton
 };
+

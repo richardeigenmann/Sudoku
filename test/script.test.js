@@ -1,4 +1,6 @@
-const { isSingleton, drawGrid, setNumber, removeOption, getNumber } = require('../src/script');
+import { describe, test, expect, beforeEach } from 'vitest';
+import { isSingleton, drawGrid, setNumber, removeOption, getNumber } from '../src/script.js';
+
 
 describe('Sudoku functions', () => {
   beforeEach(() => {
