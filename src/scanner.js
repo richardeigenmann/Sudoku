@@ -53,6 +53,45 @@ export async function terminateTesseractWorker() {
 }
 
 /**
+ * Applies brightness and contrast adjustment to a canvas.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} [brightness=0] - -100 to 100
+ * @param {number} [contrast=1.0] - 0.5 to 2.0
+ * @returns {HTMLCanvasElement}
+ */
+export function applyLightingFilter(canvas, brightness = 0, contrast = 1.0) {
+    if (!canvas || !canvas.width || typeof document === 'undefined') return canvas;
+    if (brightness === 0 && contrast === 1.0) return canvas;
+    const w = canvas.width;
+    const h = canvas.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return canvas;
+
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const src = imgData.data;
+
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = w;
+    outCanvas.height = h;
+    const outCtx = outCanvas.getContext('2d');
+    if (!outCtx) return canvas;
+
+    const outImgData = outCtx.createImageData(w, h);
+    const dst = outImgData.data;
+
+    for (let i = 0; i < src.length; i += 4) {
+        for (let c = 0; c < 3; c++) {
+            const val = contrast * (src[i + c] - 128) + 128 + brightness;
+            dst[i + c] = Math.max(0, Math.min(255, val));
+        }
+        dst[i + 3] = src[i + 3];
+    }
+
+    outCtx.putImageData(outImgData, 0, 0);
+    return outCanvas;
+}
+
+/**
  * Applies a 3x3 Laplacian sharpening filter to a canvas.
  * Kernel: [ 0, -k, 0; -k, 1+4k, -k; 0, -k, 0 ]
  * @param {HTMLCanvasElement} canvas
@@ -61,6 +100,7 @@ export async function terminateTesseractWorker() {
  */
 export function applySharpeningFilter(canvas, strength = 0.7) {
     if (!canvas || !canvas.width || typeof document === 'undefined') return canvas;
+    if (strength <= 0) return canvas;
     const w = canvas.width;
     const h = canvas.height;
     const ctx = canvas.getContext('2d');

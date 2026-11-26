@@ -7,6 +7,7 @@ import {
     detectGridCornersPureJS,
     warpGridCanvas,
     applySharpeningFilter,
+    applyLightingFilter,
     getTesseractWorker,
     extractCellCanvas,
     recognizeCellWithTesseract,
@@ -23,10 +24,29 @@ let displayCanvas = null;
 let displayCtx = null;
 let scaleFactor = 1;
 let currentGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
+let rawWarpedCanvas = null;
 let warpedCanvas = null;
+let currentAnalysisId = 0;
+let debounceTimer = null;
 
 const CORNER_RADIUS = 12;
 const CORNER_COLORS = ['#007bff', '#28a745', '#dc3545', '#fd7e14']; // TL, TR, BR, BL
+
+const LIGHTING_CONFIGS = {
+    1: { brightness: -20, contrast: 1.15, sensitivity: 0.88, label: 'Dark / Heavy Ink' },
+    2: { brightness: -10, contrast: 1.08, sensitivity: 0.94, label: 'Medium-Dark' },
+    3: { brightness: 0, contrast: 1.00, sensitivity: 1.00, label: 'Normal' },
+    4: { brightness: 12, contrast: 1.08, sensitivity: 1.08, label: 'Medium-Bright' },
+    5: { brightness: 24, contrast: 1.18, sensitivity: 1.16, label: 'Bright / Faint Ink' }
+};
+
+const SHARPEN_CONFIGS = {
+    0: { strength: 0.0, label: 'Off' },
+    1: { strength: 0.35, label: 'Low' },
+    2: { strength: 0.70, label: 'Medium' },
+    3: { strength: 1.05, label: 'High' },
+    4: { strength: 1.40, label: 'Max' }
+};
 
 /**
  * Creates the modal markup and injects it into the DOM.
@@ -71,38 +91,42 @@ function createModalDOM() {
                     <p class="scannerHelpText">
                         Drag the 4 corner pins to match the outer corners of the Sudoku puzzle grid.
                     </p>
-                    <div class="scannerControlPanel">
-                        <div class="scannerControlGroup">
-                            <label for="scannerSensitivity" class="scannerControlLabel">
-                                Detection Sensitivity: <span id="sensitivityValLabel" class="scannerValHighlight">Normal</span>
-                            </label>
-                            <input type="range" id="scannerSensitivity" min="1" max="5" value="3" step="1" class="scannerSlider">
-                        </div>
-                        <div class="scannerControlGroup">
-                            <label class="scannerCheckboxLabel">
-                                <input type="checkbox" id="scannerSharpen" checked>
-                                Sharpen Photo
-                            </label>
-                        </div>
-                    </div>
                     <div class="canvasWrapper">
                         <canvas id="scannerCanvas"></canvas>
                     </div>
                     <div class="scannerActions">
                         <button id="scannerNewPhotoBtn" class="scannerBtn secondary">&larr; Choose Another Photo</button>
+                        <button id="scannerResetCornersBtn" class="scannerBtn secondary">Reset Pins</button>
                         <button id="scannerAutoDetectBtn" class="scannerBtn secondary">Auto-Detect Grid</button>
-                        <button id="scannerScanDigitsBtn" class="scannerBtn primary">Scan Digits &rarr;</button>
+                        <button id="scannerScanDigitsBtn" class="scannerBtn primary">Next: OCR Digits &rarr;</button>
                     </div>
                 </div>
 
                 <!-- STEP 2: Review & Verify -->
                 <div id="scannerStepReview" class="scannerStep displayNone">
                     <p class="scannerHelpText">
-                        Review detected numbers against the cropped photo. Tap any cell to adjust.
+                        Review detected numbers. Adjust lighting or sharpen to automatically re-analyse. Tap any cell to adjust.
                     </p>
+                    
+                    <div class="scannerControlPanel">
+                        <div class="scannerControlGroup">
+                            <label for="scannerLighting" class="scannerControlLabel">
+                                Lighting: <span id="lightingValLabel" class="scannerValHighlight">Normal</span>
+                            </label>
+                            <input type="range" id="scannerLighting" min="1" max="5" value="3" step="1" class="scannerSlider">
+                        </div>
+                        <div class="scannerControlGroup">
+                            <label for="scannerSharpen" class="scannerControlLabel">
+                                Sharpen: <span id="sharpenValLabel" class="scannerValHighlight">Medium</span>
+                            </label>
+                            <input type="range" id="scannerSharpen" min="0" max="4" value="2" step="1" class="scannerSlider">
+                        </div>
+                        <button id="scannerReanalyseBtn" class="scannerBtn secondary">↻ Re-analyse</button>
+                    </div>
+
                     <div class="scannerReviewContainer">
                         <div class="scannerPhotoPreview">
-                            <h4>Original Photo</h4>
+                            <h4>Processed Photo</h4>
                             <div class="warpedCanvasWrapper">
                                 <canvas id="scannerWarpedCanvas"></canvas>
                             </div>
@@ -116,8 +140,9 @@ function createModalDOM() {
                         </div>
                     </div>
                     <div class="scannerActions">
-                        <button id="scannerBackToAlignBtn" class="scannerBtn secondary">&larr; Re-align</button>
-                        <button id="scannerApplyBtn" class="scannerBtn primary">✓ Load into Visualizer</button>
+                        <button id="scannerBackToAlignBtn" class="scannerBtn secondary">&larr; Re-align Grid</button>
+                        <button id="scannerCancelBtn" class="scannerBtn secondary">Cancel</button>
+                        <button id="scannerApplyBtn" class="scannerBtn primary">✓ Load to Analyzer</button>
                     </div>
                 </div>
             </div>
@@ -127,7 +152,8 @@ function createModalDOM() {
     document.body.appendChild(modalEl);
 
     // Event listeners
-    document.getElementById('scannerCloseBtn').onclick = closeScannerModal;
+    document.getElementById('scannerCloseBtn').onclick = cancelOperation;
+    document.getElementById('scannerCancelBtn').onclick = cancelOperation;
     document.getElementById('scannerUploadBtn').onclick = () => {
         const fileInput = document.getElementById('scannerFileInput');
         if (fileInput) fileInput.click();
@@ -135,21 +161,27 @@ function createModalDOM() {
     document.getElementById('scannerSampleBtn').onclick = () => loadSamplePhoto('Sudoku1.jpg');
     document.getElementById('scannerSample4Btn').onclick = () => loadSamplePhoto('Sudoku4.jpg');
     document.getElementById('scannerNewPhotoBtn').onclick = () => showStep('choose');
+    document.getElementById('scannerResetCornersBtn').onclick = resetCorners;
     document.getElementById('scannerAutoDetectBtn').onclick = runAutoDetect;
-    document.getElementById('scannerScanDigitsBtn').onclick = runDigitRecognition;
-    document.getElementById('scannerBackToAlignBtn').onclick = () => showStep('align');
+    document.getElementById('scannerScanDigitsBtn').onclick = proceedToStep2;
+    document.getElementById('scannerBackToAlignBtn').onclick = onBackToAlign;
+    document.getElementById('scannerReanalyseBtn').onclick = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        runDigitRecognition();
+    };
     document.getElementById('scannerApplyBtn').onclick = onApplyClicked;
 
     displayCanvas = document.getElementById('scannerCanvas');
     displayCtx = displayCanvas.getContext('2d');
 
-    const sensSlider = document.getElementById('scannerSensitivity');
-    const sensLabel = document.getElementById('sensitivityValLabel');
-    const sensNames = { 1: 'Low (Heavy Ink)', 2: 'Medium-Low', 3: 'Normal', 4: 'Medium-High', 5: 'High (Faint Ink)' };
-    if (sensSlider && sensLabel) {
-        sensSlider.oninput = () => {
-            sensLabel.textContent = sensNames[sensSlider.value] || 'Normal';
-        };
+    const lightingSlider = document.getElementById('scannerLighting');
+    const sharpenSlider = document.getElementById('scannerSharpen');
+
+    if (lightingSlider) {
+        lightingSlider.oninput = onSettingChanged;
+    }
+    if (sharpenSlider) {
+        sharpenSlider.oninput = onSettingChanged;
     }
 
     setupCanvasInteraction();
@@ -302,11 +334,28 @@ export function openScannerWithImage(img) {
     }
 
     drawAlignmentCanvas();
-    setStatus('Grid detected! Fine-tune the corner pins if needed, then click "Scan Digits".');
+    setStatus('Position the 4 corner pins on the Sudoku grid, then click Next.');
 }
 
 /**
- * Executes pure JS grid detection instantly without external network or WASM overhead.
+ * Resets corner pins to a centered rectangular default.
+ */
+function resetCorners() {
+    if (!cachedPreviewCanvas) return;
+    const targetW = cachedPreviewCanvas.width;
+    const targetH = cachedPreviewCanvas.height;
+    corners = [
+        { x: Math.round(targetW * 0.08), y: Math.round(targetH * 0.08) },
+        { x: Math.round(targetW * 0.92), y: Math.round(targetH * 0.08) },
+        { x: Math.round(targetW * 0.92), y: Math.round(targetH * 0.92) },
+        { x: Math.round(targetW * 0.08), y: Math.round(targetH * 0.92) }
+    ];
+    drawAlignmentCanvas();
+    setStatus('Pins reset. Position the 4 corners to match the puzzle grid.');
+}
+
+/**
+ * Executes pure JS grid detection.
  */
 function runAutoDetect() {
     if (!currentImage || !cachedPreviewCanvas) return;
@@ -315,7 +364,7 @@ function runAutoDetect() {
         const detected = detectGridCornersPureJS(cachedPreviewCanvas);
         if (detected && detected.length === 4) {
             corners = detected;
-            setStatus('Grid border aligned! Adjust pins if needed, then click "Scan Digits".');
+            setStatus('Grid border aligned! Adjust pins if needed, then click Next.');
         } else {
             setStatus('Could not auto-detect border. Position the pins manually.');
         }
@@ -381,7 +430,6 @@ function setupCanvasInteraction() {
 
 /**
  * Draws the cached preview image, corner pins, and perspective grid guidelines.
- * Takes <0.1ms using the cached preview canvas!
  */
 function drawAlignmentCanvas() {
     if (!cachedPreviewCanvas || !displayCtx) return;
@@ -442,9 +490,10 @@ function lerp2D(p1, p2, t) {
 }
 
 /**
- * Warps perspective and executes Tesseract OCR digit recognition on non-blank cells.
+ * Transitions from Step 1 to Step 2, warps the perspective, and initiates OCR automatically.
  */
-async function runDigitRecognition() {
+function proceedToStep2() {
+    if (!currentImage || !corners || corners.length !== 4) return;
     setStatus('Warping perspective...');
     showStep('review');
 
@@ -461,42 +510,99 @@ async function runDigitRecognition() {
     const fullCtx = fullCanvas.getContext('2d');
     fullCtx.drawImage(currentImage, 0, 0);
 
-    // Fast pure JS perspective warp to 540x540 for crisp OCR resolution
-    let warped = warpGridCanvas(fullCanvas, fullCorners, 540);
+    // Fast pure JS perspective warp to 540x540
+    rawWarpedCanvas = warpGridCanvas(fullCanvas, fullCorners, 540);
 
-    const doSharpen = document.getElementById('scannerSharpen')?.checked ?? true;
-    if (doSharpen) {
-        warped = applySharpeningFilter(warped, 0.7);
-    }
-    warpedCanvas = warped;
+    // Update settings labels, process lighting/sharpening, and update canvas preview
+    processAndDisplayWarped();
 
-    // Show warped canvas in preview
-    const previewCanvas = document.getElementById('scannerWarpedCanvas');
-    previewCanvas.width = 540;
-    previewCanvas.height = 540;
-    const pctx = previewCanvas.getContext('2d');
-    pctx.drawImage(warpedCanvas, 0, 0);
-
+    // Reset grid
     currentGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
     renderReviewGrid();
 
-    const sensLevel = parseInt(document.getElementById('scannerSensitivity')?.value || '3', 10);
-    const sensMultipliers = { 1: 0.88, 2: 0.94, 3: 1.00, 4: 1.08, 5: 1.16 };
-    const sensitivity = sensMultipliers[sensLevel] || 1.00;
+    // Automatically trigger OCR without requiring an extra tap
+    runDigitRecognition();
+}
+
+/**
+ * Applies current lighting and sharpening settings to the warped canvas
+ * and updates the preview canvas instantly.
+ */
+function processAndDisplayWarped() {
+    if (!rawWarpedCanvas) return;
+
+    const lightingLevel = parseInt(document.getElementById('scannerLighting')?.value || '3', 10);
+    const sharpenLevel = parseInt(document.getElementById('scannerSharpen')?.value || '2', 10);
+
+    const lConfig = LIGHTING_CONFIGS[lightingLevel] || LIGHTING_CONFIGS[3];
+    const sConfig = SHARPEN_CONFIGS[sharpenLevel] || SHARPEN_CONFIGS[2];
+
+    const lLabel = document.getElementById('lightingValLabel');
+    if (lLabel) lLabel.textContent = lConfig.label;
+
+    const sLabel = document.getElementById('sharpenValLabel');
+    if (sLabel) sLabel.textContent = sConfig.label;
+
+    let processed = rawWarpedCanvas;
+    if (lConfig.brightness !== 0 || lConfig.contrast !== 1.0) {
+        processed = applyLightingFilter(processed, lConfig.brightness, lConfig.contrast);
+    }
+    if (sConfig.strength > 0) {
+        processed = applySharpeningFilter(processed, sConfig.strength);
+    }
+    warpedCanvas = processed;
+
+    const previewCanvas = document.getElementById('scannerWarpedCanvas');
+    if (previewCanvas) {
+        previewCanvas.width = 540;
+        previewCanvas.height = 540;
+        const pctx = previewCanvas.getContext('2d');
+        pctx.drawImage(warpedCanvas, 0, 0);
+    }
+}
+
+/**
+ * Called whenever the lighting or sharpen knob is adjusted.
+ * Updates preview immediately and triggers re-analyse after a short debounce.
+ */
+function onSettingChanged() {
+    processAndDisplayWarped();
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        runDigitRecognition();
+    }, 250);
+}
+
+/**
+ * Warps perspective and executes Tesseract OCR digit recognition on non-blank cells.
+ * Supports cancellation if settings change or operation is cancelled.
+ */
+async function runDigitRecognition() {
+    const analysisId = ++currentAnalysisId;
+    if (!rawWarpedCanvas) return;
+
+    processAndDisplayWarped();
+
+    const lightingLevel = parseInt(document.getElementById('scannerLighting')?.value || '3', 10);
+    const lConfig = LIGHTING_CONFIGS[lightingLevel] || LIGHTING_CONFIGS[3];
+    const sensitivity = lConfig.sensitivity;
 
     let worker;
     try {
         setStatus('Initializing Tesseract OCR engine (cached in browser)...');
         worker = await getTesseractWorker((m) => {
-            if (m && m.status && m.status !== 'recognizing text') {
+            if (analysisId === currentAnalysisId && m && m.status && m.status !== 'recognizing text') {
                 setStatus(`Tesseract: ${m.status}...`);
             }
         });
     } catch (err) {
+        if (analysisId !== currentAnalysisId) return;
         console.error('Tesseract OCR failed to initialize:', err);
         setStatus('OCR engine failed to initialize. You can enter digits manually.');
         return;
     }
+
+    if (analysisId !== currentAnalysisId) return;
 
     // Pre-filter blank cells using rapid ink detection with dynamic sensitivity
     setStatus('Detecting clue cells...');
@@ -513,20 +619,31 @@ async function runDigitRecognition() {
         }
     }
 
+    if (analysisId !== currentAnalysisId) return;
+
+    // Reset grid for fresh analysis run
+    currentGrid = Array.from({ length: 9 }, () => Array(9).fill(0));
+    renderReviewGrid();
+    updateClueCount();
+
     let detectedClues = 0;
     for (let i = 0; i < cellsToScan.length; i++) {
+        if (analysisId !== currentAnalysisId) return; // Superseded by knob change or cancelled
         const { r, c, cellCanvas } = cellsToScan[i];
         setStatus(`Recognizing clue ${i + 1} of ${cellsToScan.length} (Row ${r + 1}, Col ${c + 1})...`);
         const digit = await recognizeCellWithTesseract(worker, cellCanvas);
+        if (analysisId !== currentAnalysisId) return;
         if (digit >= 1 && digit <= 9) {
             currentGrid[r][c] = digit;
             detectedClues++;
             renderReviewGrid();
+            updateClueCount();
         }
     }
 
+    if (analysisId !== currentAnalysisId) return;
     setStatus(`Recognition complete! Found ${detectedClues} clues. Tap any cell to correct.`);
-    document.getElementById('clueCount').textContent = detectedClues;
+    updateClueCount();
     renderReviewGrid();
 }
 
@@ -535,14 +652,17 @@ async function runDigitRecognition() {
  */
 function renderReviewGrid() {
     const gridEl = document.getElementById('scannerReviewGrid');
+    if (!gridEl) return;
     gridEl.innerHTML = '';
 
     const conflicts = validateSudokuGrid(currentGrid);
     const alertEl = document.getElementById('conflictAlert');
-    if (conflicts.size > 0) {
-        alertEl.classList.remove('displayNone');
-    } else {
-        alertEl.classList.add('displayNone');
+    if (alertEl) {
+        if (conflicts.size > 0) {
+            alertEl.classList.remove('displayNone');
+        } else {
+            alertEl.classList.add('displayNone');
+        }
     }
 
     for (let r = 0; r < 9; r++) {
@@ -621,7 +741,28 @@ function updateClueCount() {
  * Handles applying the scanned grid to the visualizer board.
  */
 function onApplyClicked() {
+    currentAnalysisId++;
+    if (debounceTimer) clearTimeout(debounceTimer);
     applyScannedGrid(currentGrid);
+    closeScannerModal();
+}
+
+/**
+ * Returns from Step 2 to Step 1 corner alignment.
+ */
+function onBackToAlign() {
+    currentAnalysisId++;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    showStep('align');
+    drawAlignmentCanvas();
+}
+
+/**
+ * Cancels the current scanning operation and closes modal.
+ */
+function cancelOperation() {
+    currentAnalysisId++;
+    if (debounceTimer) clearTimeout(debounceTimer);
     closeScannerModal();
 }
 
@@ -634,15 +775,16 @@ function showStep(stepName) {
     if (stepAlign) stepAlign.classList.add('displayNone');
     if (stepReview) stepReview.classList.add('displayNone');
 
+    const titleEl = document.getElementById('scannerTitle');
     if (stepName === 'choose') {
         if (stepChoose) stepChoose.classList.remove('displayNone');
-        document.getElementById('scannerTitle').textContent = 'Scan Sudoku from Magazine';
+        if (titleEl) titleEl.textContent = 'Scan Sudoku from Magazine';
     } else if (stepName === 'align') {
         if (stepAlign) stepAlign.classList.remove('displayNone');
-        document.getElementById('scannerTitle').textContent = 'Scan Sudoku: Align Grid Corners';
+        if (titleEl) titleEl.textContent = 'Scan Sudoku: Step 1 of 2 (Find Grid)';
     } else if (stepName === 'review') {
         if (stepReview) stepReview.classList.remove('displayNone');
-        document.getElementById('scannerTitle').textContent = 'Scan Sudoku: Review & Correct';
+        if (titleEl) titleEl.textContent = 'Scan Sudoku: Step 2 of 2 (OCR & Review)';
     }
 }
 

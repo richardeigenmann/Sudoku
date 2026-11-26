@@ -7,7 +7,8 @@ import {
     recognizePrintedCell,
     extractCellCanvas,
     recognizeCellWithTesseract,
-    applySharpeningFilter
+    applySharpeningFilter,
+    applyLightingFilter
 } from '../src/scanner.js';
 
 describe('Scanner helper functions', () => {
@@ -124,5 +125,16 @@ describe('Scanner helper functions', () => {
         expect(applySharpeningFilter(null)).toBeNull();
         const dummyCanvas = { width: 0 };
         expect(applySharpeningFilter(dummyCanvas)).toBe(dummyCanvas);
+        const dummyCanvasPositive = { width: 100 };
+        expect(applySharpeningFilter(dummyCanvasPositive, 0)).toBe(dummyCanvasPositive);
+    });
+
+    test('applyLightingFilter safely handles invalid canvas, identity parameters, and missing context', () => {
+        expect(applyLightingFilter(null)).toBeNull();
+        const dummyCanvas = { width: 0 };
+        expect(applyLightingFilter(dummyCanvas, 10, 1.2)).toBe(dummyCanvas);
+        const dummyCanvasPositive = { width: 100 };
+        // Identity returns same canvas without processing
+        expect(applyLightingFilter(dummyCanvasPositive, 0, 1.0)).toBe(dummyCanvasPositive);
     });
 });
