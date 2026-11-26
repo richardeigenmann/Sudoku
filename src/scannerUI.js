@@ -224,14 +224,16 @@ export function closeScannerModal() {
 
 function loadSamplePhoto(filename = 'Sudoku1.jpg') {
     setStatus(`Loading sample photo (${filename})...`);
+    const baseUrl = import.meta.env?.BASE_URL || './';
+    const sampleUrl = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}samples/${filename}`;
     const img = new Image();
     img.onload = () => {
         openScannerWithImage(img);
     };
     img.onerror = () => {
-        setStatus(`Could not load sample photo from /samples/${filename}.`);
+        setStatus(`Could not load sample photo from ${sampleUrl}.`);
     };
-    img.src = `/samples/${filename}`;
+    img.src = sampleUrl;
 }
 
 /**
