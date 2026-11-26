@@ -51,6 +51,8 @@ pnpm preview
 pnpm test
 ```
 
+## Pushing to master will trigger GitHub Actions which will push to gh-pages
+
 ## Fixing outdated dependencies
 
 ```bash
